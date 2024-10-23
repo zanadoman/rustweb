@@ -1,10 +1,11 @@
 use axum::async_trait;
 use axum_login::{
-    tower_sessions::{MemoryStore, SessionManagerLayer},
+    tower_sessions::{Expiry, MemoryStore, SessionManagerLayer},
     AuthManagerLayer, AuthManagerLayerBuilder, AuthnBackend, UserId,
 };
 use password_auth::verify_password;
 use sqlx::{Error, MySqlPool};
+use time::Duration;
 use tracing::instrument;
 
 use crate::models::user::UserModel;
@@ -47,7 +48,9 @@ impl AuthenticatorService {
             AuthenticatorService {
                 0: database.clone(),
             },
-            SessionManagerLayer::new(MemoryStore::default()),
+            SessionManagerLayer::new(MemoryStore::default())
+                .with_expiry(Expiry::OnInactivity(Duration::minutes(10)))
+                .with_secure(false),
         )
         .build())
     }

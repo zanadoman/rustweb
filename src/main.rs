@@ -25,7 +25,7 @@ async fn main() {
             .unwrap();
 
     serve(
-        TcpListener::bind("127.0.0.1:8000").await.unwrap(),
+        TcpListener::bind("0.0.0.0:8000").await.unwrap(),
         routes()
             .layer(AuthenticatorService::new(&database).await.unwrap())
             .with_state(database.into()),
