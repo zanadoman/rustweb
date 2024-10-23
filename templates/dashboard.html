@@ -1,11 +1,4 @@
-{% extends "index.html" %}
-{% block main %}
-
-<div id="messages">
-    {% for message in messages %}
-    {% include "message.html" %}
-    {% endfor %}
-</div>
+<div id="messages" hx-get="/messages" hx-trigger="load" hx-swap="innerHTML"></div>
 
 <form hx-post="/messages" hx-target="#messages" hx-swap="beforeend">
     <label>Title</label>
@@ -15,4 +8,6 @@
     <button type="submit">Send</button>
 </form>
 
-{% endblock main %}
+<br>
+
+<button hx-post="/logout" hx-target="main" hx-swap="innerHTML">Logout</button>

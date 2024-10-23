@@ -1,1 +1,4 @@
-pub mod message_controller;
+pub mod authentication;
+pub mod dashboard;
+pub mod index;
+pub mod message;

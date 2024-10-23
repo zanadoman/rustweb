@@ -1,1 +1,2 @@
-pub mod message_model;
+pub mod message;
+pub mod user;

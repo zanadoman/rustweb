@@ -11,10 +11,17 @@ pub struct MessageModel {
 
 impl MessageModel {
     #[instrument(skip(database))]
-    pub async fn find(database: &MySqlPool, id: i32) -> Result<Self, Error> {
-        query_as!(MessageModel, "SELECT * FROM messages WHERE id = ?", id)
-            .fetch_one(database)
-            .await
+    pub async fn find(
+        database: &MySqlPool,
+        id: i32,
+    ) -> Result<Option<Self>, Error> {
+        query_as!(
+            MessageModel,
+            "SELECT * FROM messages WHERE id = ? LIMIT 1",
+            id
+        )
+        .fetch_optional(database)
+        .await
     }
 
     #[instrument(skip(database))]

@@ -1,6 +1,6 @@
 use askama::Template;
 
-use crate::models::message_model::MessageModel;
+use crate::models::message::MessageModel;
 
 #[derive(Template)]
 #[template(path = "message.html")]

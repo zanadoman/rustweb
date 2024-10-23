@@ -1,2 +1,5 @@
-pub mod dashboard_template;
-pub mod message_template;
+pub mod authentication;
+pub mod dashbaord;
+pub mod index;
+pub mod message;
+pub mod messages;

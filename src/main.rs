@@ -1,16 +1,16 @@
 mod controllers;
 mod models;
 mod routes;
+mod services;
 mod templates;
 
-use std::sync::Arc;
-
 use axum::serve;
+use services::authenticator::AuthenticatorService;
 use sqlx::MySqlPool;
 use tokio::{main, net::TcpListener};
 use tracing_subscriber::{fmt, fmt::format::FmtSpan};
 
-use routes::message_routes::message_routes;
+use routes::routes;
 
 #[main]
 async fn main() {
@@ -18,13 +18,17 @@ async fn main() {
         .with_span_events(FmtSpan::FULL)
         .with_target(false)
         .init();
+
+    let database =
+        MySqlPool::connect("mariadb://root:12345678@localhost/messages")
+            .await
+            .unwrap();
+
     serve(
         TcpListener::bind("127.0.0.1:8000").await.unwrap(),
-        message_routes().with_state(Arc::new(
-            MySqlPool::connect("mariadb://root:12345678@localhost/messages")
-                .await
-                .unwrap(),
-        )),
+        routes()
+            .layer(AuthenticatorService::new(&database).await.unwrap())
+            .with_state(database.into()),
     )
     .await
     .unwrap();

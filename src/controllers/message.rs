@@ -10,10 +10,8 @@ use axum::{
 use sqlx::MySqlPool;
 use tracing::instrument;
 
-use crate::models::message_model::MessageModel;
-use crate::templates::{
-    dashboard_template::DashboardTemplate, message_template::MessageTemplate,
-};
+use crate::models::message::MessageModel;
+use crate::templates::{message::MessageTemplate, messages::MessagesTemplate};
 
 #[instrument(skip(database))]
 pub async fn show(
@@ -21,9 +19,11 @@ pub async fn show(
     Path(id): Path<i32>,
 ) -> impl IntoResponse {
     let message = match MessageModel::find(database.as_ref(), id).await {
-        Ok(message) => message,
+        Ok(Some(message)) => message,
+        Ok(None) => return StatusCode::NOT_FOUND.into_response(),
         Err(error) => {
-            return (StatusCode::NOT_FOUND, error.to_string()).into_response()
+            return (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+                .into_response()
         }
     };
     match (MessageTemplate { message: &message }).render() {
@@ -40,10 +40,11 @@ pub async fn index(
     let messages = match MessageModel::all(database.as_ref()).await {
         Ok(messages) => messages,
         Err(error) => {
-            return (StatusCode::NOT_FOUND, error.to_string()).into_response()
+            return (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+                .into_response()
         }
     };
-    match (DashboardTemplate {
+    match (MessagesTemplate {
         messages: &messages,
     })
     .render()
@@ -76,9 +77,11 @@ pub async fn update(
     Form(form): Form<MessageModel>,
 ) -> impl IntoResponse {
     let message = match MessageModel::find(database.as_ref(), id).await {
-        Ok(message) => message,
+        Ok(Some(message)) => message,
+        Ok(None) => return StatusCode::NOT_FOUND.into_response(),
         Err(error) => {
-            return (StatusCode::NOT_FOUND, error.to_string()).into_response()
+            return (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+                .into_response()
         }
     };
     match message
@@ -98,9 +101,11 @@ pub async fn destroy(
     Path(id): Path<i32>,
 ) -> impl IntoResponse {
     let message = match MessageModel::find(database.as_ref(), id).await {
-        Ok(message) => message,
+        Ok(Some(message)) => message,
+        Ok(None) => return StatusCode::NOT_FOUND.into_response(),
         Err(error) => {
-            return (StatusCode::NOT_FOUND, error.to_string()).into_response()
+            return (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+                .into_response()
         }
     };
     match message.delete(database.as_ref()).await {

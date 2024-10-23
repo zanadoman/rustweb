@@ -9,9 +9,7 @@
 </head>
 
 <body>
-
-    <main>{% block main %}{% endblock main %}</main>
-
+    <main hx-get="/authentication" hx-trigger="load" hx-swap="innerHTML"></main>
 </body>
 
 </html>
