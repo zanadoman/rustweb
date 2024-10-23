@@ -1,0 +1,16 @@
+{% if let Some(id) = message.id %}
+<div id="message-{{ id }}">
+    <form hx-delete="/messages/{{ id }}" hx-target="#message-{{ id }}" hx-swap="outerHTML">
+        <label><b>{{ message.title }} </b>{{ message.content }}</label>
+        <button type="submit">Delete</button>
+    </form>
+    <form hx-put="/messages/{{ id }}" hx-target="#message-{{ id }}" hx-swap="outerHTML">
+        <label>Title</label>
+        <input type="text" name="title" value="{{ message.title }}" />
+        <label>Content</label>
+        <input type="text" name="content" value="{{ message.content }}" />
+        <button type="submit">Edit</button>
+    </form>
+    <br>
+</div>
+{% endif %}

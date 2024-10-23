@@ -1,0 +1,14 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+askama = { version = "*" }
+axum = { version = "*" }
+serde = { version = "*", features = ["derive"] }
+sqlx = { version = "*", features = ["mysql", "runtime-tokio"] }
+tokio = { version = "*", features = ["rt-multi-thread"] }
+tower-http = { version = "*", features = ["cors"] }
+tracing = { version = "*" }
+tracing-subscriber = { version = "*" }
