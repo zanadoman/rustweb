@@ -1,12 +1,11 @@
 use axum::async_trait;
 use axum_login::{
-    tower_sessions::{Expiry, SessionManagerLayer},
+    tower_sessions::{Expiry, MemoryStore, SessionManagerLayer},
     AuthManagerLayer, AuthManagerLayerBuilder, AuthnBackend, UserId,
 };
 use password_auth::verify_password;
 use sqlx::{Error, MySqlPool};
 use time::Duration;
-use tower_sessions_sqlx_store::MySqlStore;
 
 use crate::models::user::UserModel;
 
@@ -39,14 +38,13 @@ impl AuthnBackend for AuthenticatorService {
 impl AuthenticatorService {
     pub async fn new(
         database: &MySqlPool,
-    ) -> Result<AuthManagerLayer<AuthenticatorService, MySqlStore>, Error> {
-        let storage = MySqlStore::new(database.clone());
-        storage.migrate().await?;
+    ) -> Result<AuthManagerLayer<AuthenticatorService, MemoryStore>, Error>
+    {
         Ok(AuthManagerLayerBuilder::new(
             AuthenticatorService {
                 0: database.clone(),
             },
-            SessionManagerLayer::new(storage)
+            SessionManagerLayer::new(MemoryStore::default())
                 .with_expiry(Expiry::OnInactivity(Duration::minutes(10)))
                 .with_secure(false),
         )
