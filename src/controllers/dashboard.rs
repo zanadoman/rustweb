@@ -1,7 +1,7 @@
 use askama::Template;
 use axum::{
     http::StatusCode,
-    response::{Html, IntoResponse, Redirect},
+    response::{Html, IntoResponse},
 };
 use axum_login::AuthSession;
 use tracing::instrument;
@@ -17,6 +17,7 @@ pub async fn index(
 ) -> impl IntoResponse {
     match authenticator.user {
         Some(user) => match (DashboardTemplate {
+            location: "Dashboard",
             username: &user.name,
         })
         .render()
@@ -27,6 +28,6 @@ pub async fn index(
                     .into_response()
             }
         },
-        None => Redirect::to("/authentication").into_response(),
+        None => (StatusCode::SEE_OTHER, [("HX-Redirect", "/")]).into_response(),
     }
 }

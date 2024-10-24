@@ -8,16 +8,12 @@
     <script src="/assets/js/htmx.min.js"></script>
 </head>
 
-<header>Header</header>
-
-<br>
-
 <body>
-    <main hx-get="/authentication" hx-trigger="load" hx-swap="innerHTML"></main>
+    <header>{{ location }}</header>
+
+    <main>{% block content %}{% endblock content %}</main>
+
+    <Footer><a href="https://github.com/zanadoman/rustweb">GitHub</a></Footer>
 </body>
-
-<br>
-
-<Footer>Footer</Footer>
 
 </html>

@@ -1,3 +1,6 @@
+{% extends "index.html" %}
+{% block content %}
+
 <p><b>{{ username }}</b></p>
 
 <div id="messages" hx-get="/messages" hx-trigger="load" hx-swap="innerHTML"></div>
@@ -12,4 +15,6 @@
 
 <br>
 
-<button hx-post="/logout" hx-target="main" hx-swap="innerHTML">Logout</button>
+<button hx-post="/logout" hx-swap="none">Logout</button>
+
+{% endblock content %}

@@ -4,7 +4,7 @@ use askama::Template;
 use axum::{
     extract::State,
     http::StatusCode,
-    response::{Html, IntoResponse, Redirect},
+    response::{Html, IntoResponse},
     Form,
 };
 use axum_login::AuthSession;
@@ -18,7 +18,11 @@ use crate::{
 
 #[instrument]
 pub async fn authentication() -> impl IntoResponse {
-    match (AuthenticationTemplate {}).render() {
+    match (AuthenticationTemplate {
+        location: "Authentication",
+    })
+    .render()
+    {
         Ok(rendered) => (StatusCode::OK, Html(rendered)).into_response(),
         Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
             .into_response(),
@@ -32,7 +36,9 @@ pub async fn register(
 ) -> impl IntoResponse {
     match UserModel::create(database.as_ref(), &form.name, &form.password).await
     {
-        Ok(..) => Redirect::to("/login").into_response(),
+        Ok(..) => {
+            (StatusCode::SEE_OTHER, [("HX-Redirect", "/")]).into_response()
+        }
         Err(error) => (StatusCode::CONFLICT, error.to_string()).into_response(),
     }
 }
@@ -44,7 +50,8 @@ pub async fn login(
 ) -> impl IntoResponse {
     match authenticator.authenticate(form).await {
         Ok(Some(user)) => match authenticator.login(&user).await {
-            Ok(..) => Redirect::to("/dashboard").into_response(),
+            Ok(..) => (StatusCode::SEE_OTHER, [("HX-Redirect", "/dashboard")])
+                .into_response(),
             Err(error) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
                     .into_response()
@@ -61,7 +68,9 @@ pub async fn logout(
     mut authenticator: AuthSession<AuthenticatorService>,
 ) -> impl IntoResponse {
     match authenticator.logout().await {
-        Ok(..) => Redirect::to("/authentication").into_response(),
+        Ok(..) => {
+            (StatusCode::SEE_OTHER, [("HX-Redirect", "/")]).into_response()
+        }
         Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
             .into_response(),
     }

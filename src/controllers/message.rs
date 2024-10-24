@@ -19,6 +19,9 @@ pub async fn show(
     Path(id): Path<i32>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
+    if headers.get("Hx-Request").is_none() {
+        return Redirect::to("/dashboard").into_response();
+    }
     let message = match MessageModel::find(database.as_ref(), id).await {
         Ok(Some(message)) => message,
         Ok(None) => return StatusCode::NOT_FOUND.into_response(),
@@ -27,9 +30,6 @@ pub async fn show(
                 .into_response()
         }
     };
-    if headers.get("Hx-Request").is_none() {
-        return Redirect::to("/dashboard").into_response();
-    }
     match (MessageTemplate { message: &message }).render() {
         Ok(rendered) => (StatusCode::OK, Html(rendered)).into_response(),
         Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
@@ -42,6 +42,9 @@ pub async fn index(
     State(database): State<Arc<MySqlPool>>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
+    if headers.get("Hx-Request").is_none() {
+        return Redirect::to("/dashboard").into_response();
+    }
     let messages = match MessageModel::all(database.as_ref()).await {
         Ok(messages) => messages,
         Err(error) => {
@@ -49,9 +52,6 @@ pub async fn index(
                 .into_response()
         }
     };
-    if headers.get("Hx-Request").is_none() {
-        return Redirect::to("/dashboard").into_response();
-    }
     match (MessagesTemplate {
         messages: &messages,
     })

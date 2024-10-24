@@ -1,6 +1,5 @@
 mod authentication;
 mod dashboard;
-mod index;
 mod message;
 
 use std::sync::Arc;
@@ -16,5 +15,4 @@ pub fn routes() -> Router<Arc<MySqlPool>> {
         .merge(dashboard::routes())
         .route_layer(login_required!(AuthenticatorService, login_url = "/"))
         .merge(authentication::routes())
-        .merge(index::routes())
 }
