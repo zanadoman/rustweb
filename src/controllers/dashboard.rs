@@ -1,7 +1,7 @@
 use askama::Template;
 use axum::{
     http::StatusCode,
-    response::{Html, IntoResponse},
+    response::{Html, IntoResponse, Redirect},
 };
 use axum_login::AuthSession;
 use tracing::instrument;
@@ -28,6 +28,6 @@ pub async fn index(
                     .into_response()
             }
         },
-        None => (StatusCode::SEE_OTHER, [("HX-Redirect", "/")]).into_response(),
+        None => Redirect::to("/").into_response(),
     }
 }

@@ -4,7 +4,7 @@ use askama::Template;
 use axum::{
     extract::State,
     http::StatusCode,
-    response::{Html, IntoResponse},
+    response::{Html, IntoResponse, Redirect},
     Form,
 };
 use axum_login::AuthSession;
@@ -36,9 +36,7 @@ pub async fn register(
 ) -> impl IntoResponse {
     match UserModel::create(database.as_ref(), &form.name, &form.password).await
     {
-        Ok(..) => {
-            (StatusCode::SEE_OTHER, [("HX-Redirect", "/")]).into_response()
-        }
+        Ok(..) => Redirect::to("/").into_response(),
         Err(error) => (StatusCode::CONFLICT, error.to_string()).into_response(),
     }
 }
@@ -50,8 +48,7 @@ pub async fn login(
 ) -> impl IntoResponse {
     match authenticator.authenticate(form).await {
         Ok(Some(user)) => match authenticator.login(&user).await {
-            Ok(..) => (StatusCode::SEE_OTHER, [("HX-Redirect", "/dashboard")])
-                .into_response(),
+            Ok(..) => Redirect::to("/dashboard").into_response(),
             Err(error) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
                     .into_response()
@@ -68,9 +65,7 @@ pub async fn logout(
     mut authenticator: AuthSession<AuthenticatorService>,
 ) -> impl IntoResponse {
     match authenticator.logout().await {
-        Ok(..) => {
-            (StatusCode::SEE_OTHER, [("HX-Redirect", "/")]).into_response()
-        }
+        Ok(..) => Redirect::to("/").into_response(),
         Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
             .into_response(),
     }
