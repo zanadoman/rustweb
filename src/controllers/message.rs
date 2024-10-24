@@ -3,7 +3,7 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{
     extract::{Path, State},
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     response::{Html, IntoResponse, Redirect},
     Form,
 };
@@ -17,6 +17,7 @@ use crate::templates::{message::MessageTemplate, messages::MessagesTemplate};
 pub async fn show(
     State(database): State<Arc<MySqlPool>>,
     Path(id): Path<i32>,
+    headers: HeaderMap,
 ) -> impl IntoResponse {
     let message = match MessageModel::find(database.as_ref(), id).await {
         Ok(Some(message)) => message,
@@ -26,6 +27,9 @@ pub async fn show(
                 .into_response()
         }
     };
+    if headers.get("Hx-Request").is_none() {
+        return Redirect::to("/dashboard").into_response();
+    }
     match (MessageTemplate { message: &message }).render() {
         Ok(rendered) => (StatusCode::OK, Html(rendered)).into_response(),
         Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
@@ -36,6 +40,7 @@ pub async fn show(
 #[instrument(skip(database))]
 pub async fn index(
     State(database): State<Arc<MySqlPool>>,
+    headers: HeaderMap,
 ) -> impl IntoResponse {
     let messages = match MessageModel::all(database.as_ref()).await {
         Ok(messages) => messages,
@@ -44,6 +49,9 @@ pub async fn index(
                 .into_response()
         }
     };
+    if headers.get("Hx-Request").is_none() {
+        return Redirect::to("/dashboard").into_response();
+    }
     match (MessagesTemplate {
         messages: &messages,
     })

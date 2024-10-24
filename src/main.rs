@@ -8,10 +8,9 @@ use std::{env::var, error::Error};
 
 use axum::{extract::Request, serve};
 use dotenv::dotenv;
-use services::authenticator::AuthenticatorService;
 use sqlx::MySqlPool;
 use tokio::{main, net::TcpListener, signal::ctrl_c};
-use tower_http::trace::TraceLayer;
+use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing::{info, span, Level};
 use tracing_subscriber::{
     fmt::{self, format::FmtSpan},
@@ -21,7 +20,7 @@ use tracing_subscriber::{
     EnvFilter,
 };
 
-use routes::routes;
+use crate::{routes::routes, services::authenticator::AuthenticatorService};
 
 #[main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -37,13 +36,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     serve(
         listener,
         routes()
+            .nest_service("/assets", ServeDir::new("./assets"))
             .layer(TraceLayer::new_for_http().make_span_with(
                 |request: &Request| {
                     span! {
                         Level::DEBUG,
                         "request",
-                        method = ?request.method(),
-                        route = ?request.uri(),
+                        method = %request.method(),
+                        route = %request.uri(),
                     }
                 },
             ))
