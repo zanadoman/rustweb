@@ -1,5 +1,5 @@
 pub mod authentication;
-pub mod dashbaord;
+pub mod dashboard;
 pub mod index;
 pub mod message;
 pub mod messages;

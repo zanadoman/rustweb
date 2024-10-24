@@ -61,7 +61,7 @@ pub async fn logout(
     mut authenticator: AuthSession<AuthenticatorService>,
 ) -> impl IntoResponse {
     match authenticator.logout().await {
-        Ok(..) => Redirect::to("/dashboard").into_response(),
+        Ok(..) => Redirect::to("/authentication").into_response(),
         Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
             .into_response(),
     }

@@ -4,7 +4,10 @@ mod routes;
 mod services;
 mod templates;
 
+use std::env::var;
+
 use axum::serve;
+use dotenv::dotenv;
 use services::authenticator::AuthenticatorService;
 use sqlx::MySqlPool;
 use tokio::{main, net::TcpListener};
@@ -14,15 +17,16 @@ use routes::routes;
 
 #[main]
 async fn main() {
+    dotenv().expect(".env missing");
+
     fmt()
         .with_span_events(FmtSpan::FULL)
         .with_target(false)
         .init();
 
-    let database =
-        MySqlPool::connect("mariadb://root:12345678@localhost/messages")
-            .await
-            .unwrap();
+    let database = MySqlPool::connect(var("DATABASE_URL").unwrap().as_str())
+        .await
+        .unwrap();
 
     serve(
         TcpListener::bind("0.0.0.0:8000").await.unwrap(),

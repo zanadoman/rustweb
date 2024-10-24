@@ -7,11 +7,13 @@ edition = "2021"
 askama = { version = "*" }
 axum = { version = "*" }
 axum-login = { version = "*" }
+dotenv = { version = "*" }
 password-auth = { version = "*" }
 serde = { version = "*", features = ["derive"] }
 sqlx = { version = "*", features = ["mysql", "runtime-tokio"] }
 thiserror = { version = "*" }
 time = { version = "*" }
 tokio = { version = "*", features = ["rt-multi-thread"] }
+tower-sessions-sqlx-store = { version = "*", features = ["mysql"] }
 tracing = { version = "*" }
 tracing-subscriber = { version = "*" }
