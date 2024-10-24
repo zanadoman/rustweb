@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, query, query_as, Error, MySqlPool};
-use tracing::instrument;
 
 #[derive(Debug, Deserialize, Serialize, FromRow)]
 pub struct MessageModel {
@@ -10,7 +9,6 @@ pub struct MessageModel {
 }
 
 impl MessageModel {
-    #[instrument(skip(database))]
     pub async fn find(
         database: &MySqlPool,
         id: i32,
@@ -24,14 +22,12 @@ impl MessageModel {
         .await
     }
 
-    #[instrument(skip(database))]
     pub async fn all(database: &MySqlPool) -> Result<Vec<Self>, Error> {
         query_as!(MessageModel, "SELECT * FROM messages")
             .fetch_all(database)
             .await
     }
 
-    #[instrument(skip(database))]
     pub async fn create(
         database: &MySqlPool,
         title: &String,
@@ -47,7 +43,6 @@ impl MessageModel {
         .map(|row| row.last_insert_id())
     }
 
-    #[instrument(skip(database))]
     pub async fn update(
         &self,
         database: &MySqlPool,
@@ -65,7 +60,6 @@ impl MessageModel {
         .map(|_| ())
     }
 
-    #[instrument(skip(database))]
     pub async fn delete(&self, database: &MySqlPool) -> Result<(), Error> {
         query!("DELETE FROM messages WHERE id = ?", self.id)
             .execute(database)

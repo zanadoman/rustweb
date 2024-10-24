@@ -6,13 +6,11 @@ use axum::{
     Router,
 };
 use sqlx::MySqlPool;
-use tracing::instrument;
 
 use crate::controllers::authentication::{
     authentication, login, logout, register,
 };
 
-#[instrument]
 pub fn routes() -> Router<Arc<MySqlPool>> {
     Router::default()
         .route("/authentication", get(authentication))

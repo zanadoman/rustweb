@@ -6,7 +6,6 @@ use axum_login::{
 use password_auth::verify_password;
 use sqlx::{Error, MySqlPool};
 use time::Duration;
-use tracing::instrument;
 
 use crate::models::user::UserModel;
 
@@ -19,7 +18,6 @@ impl AuthnBackend for AuthenticatorService {
     type Credentials = UserModel;
     type Error = Error;
 
-    #[instrument(skip(self))]
     async fn authenticate(
         &self,
         credentials: Self::Credentials,
@@ -29,7 +27,6 @@ impl AuthnBackend for AuthenticatorService {
         }))
     }
 
-    #[instrument(skip(self))]
     async fn get_user(
         &self,
         name: &UserId<Self>,
@@ -39,7 +36,6 @@ impl AuthnBackend for AuthenticatorService {
 }
 
 impl AuthenticatorService {
-    #[instrument(skip(database))]
     pub async fn new(
         database: &MySqlPool,
     ) -> Result<AuthManagerLayer<AuthenticatorService, MemoryStore>, Error>
