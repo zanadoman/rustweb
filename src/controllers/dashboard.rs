@@ -1,11 +1,11 @@
 use askama::Template;
 use axum::{
-    http::StatusCode,
     response::{Html, IntoResponse},
     Extension,
 };
 use axum_csrf::CsrfToken;
 use axum_login::AuthSession;
+use http::StatusCode;
 use tracing::instrument;
 
 use crate::{

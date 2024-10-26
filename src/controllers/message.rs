@@ -3,11 +3,11 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{
     extract::{Path, State},
-    http::{HeaderMap, StatusCode},
     response::{Html, IntoResponse, Redirect},
     Extension, Form,
 };
 use axum_csrf::CsrfToken;
+use http::{HeaderMap, StatusCode};
 use sqlx::MySqlPool;
 use tracing::instrument;
 
