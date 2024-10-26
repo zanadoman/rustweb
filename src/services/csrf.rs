@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use axum::{
     body::Body,
     extract::Request,
@@ -24,7 +26,7 @@ pub async fn csrf_provider(
         error!("{error}");
         StatusCode::INTERNAL_SERVER_ERROR.into_response()
     })?;
-    if request.extensions_mut().insert(token).is_some() {
+    if request.extensions_mut().insert(Arc::new(token)).is_some() {
         error!("token insertion failed");
         return Err(StatusCode::INTERNAL_SERVER_ERROR.into_response());
     }

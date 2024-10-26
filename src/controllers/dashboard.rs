@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use askama::Template;
 use axum::{
     response::{Html, IntoResponse},
@@ -17,11 +19,11 @@ use crate::{
 pub async fn index(
     authenticator: AuthSession<AuthenticatorService>,
     csrf: CsrfToken,
-    Extension(token): Extension<String>,
+    Extension(token): Extension<Arc<String>>,
 ) -> impl IntoResponse {
     match authenticator.user {
         Some(user) => match (DashboardTemplate {
-            token,
+            token: &token,
             location: "Dashboard",
             username: &user.name,
         })

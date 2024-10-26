@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use askama::Template;
 use axum::{
     extract::{Path, State},
@@ -17,7 +19,7 @@ pub async fn show(
     Path(id): Path<i32>,
     State(database): State<MySqlPool>,
     csrf: CsrfToken,
-    Extension(token): Extension<String>,
+    Extension(token): Extension<Arc<String>>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
     if headers.get("Hx-Request").is_none() {
@@ -32,7 +34,7 @@ pub async fn show(
         }
     };
     match (MessageTemplate {
-        token,
+        token: &token,
         message: &message,
     })
     .render()
@@ -47,7 +49,7 @@ pub async fn show(
 pub async fn index(
     State(database): State<MySqlPool>,
     csrf: CsrfToken,
-    Extension(token): Extension<String>,
+    Extension(token): Extension<Arc<String>>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
     if headers.get("Hx-Request").is_none() {
@@ -61,7 +63,7 @@ pub async fn index(
         }
     };
     match (MessagesTemplate {
-        token,
+        token: &token,
         messages: &messages,
     })
     .render()

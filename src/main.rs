@@ -34,9 +34,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with(fmt::layer().with_span_events(FmtSpan::NEW | FmtSpan::CLOSE))
         .init();
     let listener = TcpListener::bind(var("APP_ADDRESS")?.as_str()).await?;
-    info!("{:?}", listener);
+    info!("{listener:?}");
     let database = MySqlPool::connect(var("DATABASE_URL")?.as_str()).await?;
-    info!("{:?}", database);
+    info!("{database:?}");
     serve(
         listener,
         routes()

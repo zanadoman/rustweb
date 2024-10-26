@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use askama::Template;
 use axum::{
     extract::State,
@@ -18,10 +20,10 @@ use crate::{
 #[instrument(skip(csrf))]
 pub async fn authentication(
     csrf: CsrfToken,
-    Extension(token): Extension<String>,
+    Extension(token): Extension<Arc<String>>,
 ) -> impl IntoResponse {
     match (AuthenticationTemplate {
-        token,
+        token: &token,
         location: "Authentication",
     })
     .render()
