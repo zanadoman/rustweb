@@ -7,6 +7,7 @@ use axum::{
     response::{Html, IntoResponse},
     Form,
 };
+use axum_csrf::CsrfToken;
 use axum_login::AuthSession;
 use sqlx::MySqlPool;
 use tracing::instrument;
@@ -16,14 +17,21 @@ use crate::{
     templates::authentication::AuthenticationTemplate,
 };
 
-#[instrument]
-pub async fn authentication() -> impl IntoResponse {
+#[instrument(skip(csrf))]
+pub async fn authentication(csrf: CsrfToken) -> impl IntoResponse {
     match (AuthenticationTemplate {
+        token: match csrf.authenticity_token() {
+            Ok(token) => token,
+            Err(error) => {
+                return (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+                    .into_response()
+            }
+        },
         location: "Authentication",
     })
     .render()
     {
-        Ok(rendered) => (StatusCode::OK, Html(rendered)).into_response(),
+        Ok(rendered) => (StatusCode::OK, csrf, Html(rendered)).into_response(),
         Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
             .into_response(),
     }

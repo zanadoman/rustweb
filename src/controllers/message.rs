@@ -7,15 +7,17 @@ use axum::{
     response::{Html, IntoResponse, Redirect},
     Form,
 };
+use axum_csrf::CsrfToken;
 use sqlx::MySqlPool;
 use tracing::instrument;
 
 use crate::models::message::MessageModel;
 use crate::templates::{message::MessageTemplate, messages::MessagesTemplate};
 
-#[instrument(skip(database))]
+#[instrument(skip(database, csrf))]
 pub async fn show(
     State(database): State<Arc<MySqlPool>>,
+    csrf: CsrfToken,
     Path(id): Path<i32>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
@@ -30,16 +32,28 @@ pub async fn show(
                 .into_response()
         }
     };
-    match (MessageTemplate { message: &message }).render() {
-        Ok(rendered) => (StatusCode::OK, Html(rendered)).into_response(),
+    match (MessageTemplate {
+        token: match csrf.authenticity_token() {
+            Ok(token) => token,
+            Err(error) => {
+                return (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+                    .into_response()
+            }
+        },
+        message: &message,
+    })
+    .render()
+    {
+        Ok(rendered) => (StatusCode::OK, csrf, Html(rendered)).into_response(),
         Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
             .into_response(),
     }
 }
 
-#[instrument(skip(database))]
+#[instrument(skip(database, csrf))]
 pub async fn index(
     State(database): State<Arc<MySqlPool>>,
+    csrf: CsrfToken,
     headers: HeaderMap,
 ) -> impl IntoResponse {
     if headers.get("Hx-Request").is_none() {
@@ -53,11 +67,18 @@ pub async fn index(
         }
     };
     match (MessagesTemplate {
+        token: match csrf.authenticity_token() {
+            Ok(token) => token,
+            Err(error) => {
+                return (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+                    .into_response()
+            }
+        },
         messages: &messages,
     })
     .render()
     {
-        Ok(rendered) => (StatusCode::OK, Html(rendered)).into_response(),
+        Ok(rendered) => (StatusCode::OK, csrf, Html(rendered)).into_response(),
         Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
             .into_response(),
     }

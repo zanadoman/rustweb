@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 askama = { version = "*" }
 axum = { version = "*" }
+axum_csrf = { version = "*", features = ["layer"] }
 axum-login = { version = "*" }
 dotenv = { version = "*" }
 password-auth = { version = "*" }

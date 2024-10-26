@@ -1,11 +1,12 @@
 {% extends "index.html" %}
 {% block content %}
 
-<p><b>{{ username }}</b></p>
+<p>{{ username }}</p>
 
 <div id="messages" hx-get="/messages" hx-trigger="load" hx-swap="innerHTML"></div>
 
-<form hx-post="/messages" hx-target="#messages" hx-swap="beforeend">
+<form hx-post="/messages" hx-target="#messages" hx-swap="beforeend"
+    hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
     <label>Title</label>
     <input type="text" name="title" />
     <label>Content</label>
@@ -13,8 +14,7 @@
     <button type="submit">Send</button>
 </form>
 
-<br>
-
-<button hx-post="/logout" hx-target="body" hx-swap="outerHTML">Logout</button>
+<button hx-post="/logout" hx-target="body" hx-swap="outerHTML"
+    hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Logout</button>
 
 {% endblock content %}

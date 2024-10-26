@@ -1,10 +1,10 @@
 {% if let Some(id) = message.id %}
 <div id="message-{{ id }}">
     <p>{{ message.title }} {{ message.content }}</p>
-    <button hx-delete="/messages/{{ id }}" hx-target="#message-{{ id }}" hx-swap="outerHTML">
-        Delete
-    </button>
-    <form hx-put="/messages/{{ id }}" hx-target="#message-{{ id }}" hx-swap="outerHTML">
+    <button hx-delete="/messages/{{ id }}" hx-target="#message-{{ id }}" hx-swap="outerHTML"
+        hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Delete</button>
+    <form hx-put="/messages/{{ id }}" hx-target="#message-{{ id }}" hx-swap="outerHTML"
+        hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
         <label>Title</label>
         <input type="text" name="title" value="{{ message.title }}" />
         <label>Content</label>

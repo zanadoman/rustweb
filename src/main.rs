@@ -6,7 +6,8 @@ mod templates;
 
 use std::{env::var, error::Error};
 
-use axum::{extract::Request, serve};
+use axum::{extract::Request, middleware::from_fn, serve};
+use axum_csrf::{CsrfConfig, CsrfLayer};
 use dotenv::dotenv;
 use sqlx::MySqlPool;
 use tokio::{main, net::TcpListener, signal::ctrl_c};
@@ -20,7 +21,10 @@ use tracing_subscriber::{
     EnvFilter,
 };
 
-use crate::{routes::routes, services::authenticator::AuthenticatorService};
+use crate::{
+    routes::routes,
+    services::{authenticator::AuthenticatorService, csrf::csrf_verifier},
+};
 
 #[main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -36,7 +40,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     serve(
         listener,
         routes()
-            .nest_service("/assets", ServeDir::new("./assets"))
+            .layer(AuthenticatorService::new(&database).await?)
+            .layer(from_fn(csrf_verifier))
+            .layer(CsrfLayer::new(CsrfConfig::default()))
             .layer(TraceLayer::new_for_http().make_span_with(
                 |request: &Request| {
                     span! {
@@ -47,8 +53,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     }
                 },
             ))
-            .layer(AuthenticatorService::new(&database).await?)
-            .with_state(database.into()),
+            .with_state(database.into())
+            .nest_service("/assets", ServeDir::new("./assets")),
     )
     .with_graceful_shutdown(async { ctrl_c().await.unwrap() })
     .await?;
