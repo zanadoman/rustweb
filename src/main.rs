@@ -54,7 +54,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     }
                 },
             ))
-            .with_state(database.into())
+            .with_state(database)
             .nest_service("/assets", ServeDir::new("./assets")),
     )
     .with_graceful_shutdown(async { ctrl_c().await.unwrap() })

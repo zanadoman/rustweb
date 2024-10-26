@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use askama::Template;
 use axum::{
     extract::State,
@@ -36,11 +34,10 @@ pub async fn authentication(
 
 #[instrument(skip(database))]
 pub async fn register(
-    State(database): State<Arc<MySqlPool>>,
+    State(database): State<MySqlPool>,
     Form(form): Form<UserModel>,
 ) -> impl IntoResponse {
-    match UserModel::create(database.as_ref(), &form.name, &form.password).await
-    {
+    match UserModel::create(&database, &form.name, &form.password).await {
         Ok(..) => (StatusCode::FOUND, [("HX-Location", "/")]).into_response(),
         Err(error) => (StatusCode::CONFLICT, error.to_string()).into_response(),
     }

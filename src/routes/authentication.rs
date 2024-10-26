@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{
     routing::{get, post},
     Router,
@@ -10,7 +8,7 @@ use crate::controllers::authentication::{
     authentication, login, logout, register,
 };
 
-pub fn routes() -> Router<Arc<MySqlPool>> {
+pub fn routes() -> Router<MySqlPool> {
     Router::default()
         .route("/", get(authentication))
         .route("/register", post(register))
