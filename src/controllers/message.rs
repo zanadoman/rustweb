@@ -93,7 +93,7 @@ pub async fn create(
         .await
     {
         Ok(id) => {
-            Redirect::to(format!("/messages/{}", id).as_str()).into_response()
+            Redirect::to(format!("/message/{}", id).as_str()).into_response()
         }
         Err(error) => (StatusCode::CONFLICT, error.to_string()).into_response(),
     }
@@ -118,7 +118,7 @@ pub async fn update(
         .await
     {
         Ok(..) => {
-            Redirect::to(format!("/messages/{}", id).as_str()).into_response()
+            Redirect::to(format!("/message/{}", id).as_str()).into_response()
         }
         Err(error) => (StatusCode::CONFLICT, error.to_string()).into_response(),
     }
