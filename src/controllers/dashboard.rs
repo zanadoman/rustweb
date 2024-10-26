@@ -2,6 +2,7 @@ use askama::Template;
 use axum::{
     http::StatusCode,
     response::{Html, IntoResponse},
+    Extension,
 };
 use axum_csrf::CsrfToken;
 use axum_login::AuthSession;
@@ -14,21 +15,13 @@ use crate::{
 
 #[instrument(skip(csrf, authenticator))]
 pub async fn index(
-    csrf: CsrfToken,
     authenticator: AuthSession<AuthenticatorService>,
+    csrf: CsrfToken,
+    Extension(token): Extension<String>,
 ) -> impl IntoResponse {
     match authenticator.user {
         Some(user) => match (DashboardTemplate {
-            token: match csrf.authenticity_token() {
-                Ok(token) => token,
-                Err(error) => {
-                    return (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        error.to_string(),
-                    )
-                        .into_response()
-                }
-            },
+            token,
             location: "Dashboard",
             username: &user.name,
         })

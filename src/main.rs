@@ -9,6 +9,11 @@ use std::{env::var, error::Error};
 use axum::{extract::Request, middleware::from_fn, serve};
 use axum_csrf::{CsrfConfig, CsrfLayer};
 use dotenv::dotenv;
+use routes::routes;
+use services::{
+    authenticator::AuthenticatorService,
+    csrf::{csrf_provider, csrf_verifier},
+};
 use sqlx::MySqlPool;
 use tokio::{main, net::TcpListener, signal::ctrl_c};
 use tower_http::{services::ServeDir, trace::TraceLayer};
@@ -19,11 +24,6 @@ use tracing_subscriber::{
     registry,
     util::SubscriberInitExt,
     EnvFilter,
-};
-
-use crate::{
-    routes::routes,
-    services::{authenticator::AuthenticatorService, csrf::csrf_verifier},
 };
 
 #[main]
@@ -40,9 +40,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     serve(
         listener,
         routes()
-            .layer(AuthenticatorService::new(&database).await?)
             .layer(from_fn(csrf_verifier))
+            .layer(from_fn(csrf_provider))
             .layer(CsrfLayer::new(CsrfConfig::default()))
+            .layer(AuthenticatorService::new(database.clone()).await?)
             .layer(TraceLayer::new_for_http().make_span_with(
                 |request: &Request| {
                     span! {

@@ -5,7 +5,7 @@ use axum::{
     extract::State,
     http::StatusCode,
     response::{Html, IntoResponse},
-    Form,
+    Extension, Form,
 };
 use axum_csrf::CsrfToken;
 use axum_login::AuthSession;
@@ -18,15 +18,12 @@ use crate::{
 };
 
 #[instrument(skip(csrf))]
-pub async fn authentication(csrf: CsrfToken) -> impl IntoResponse {
+pub async fn authentication(
+    csrf: CsrfToken,
+    Extension(token): Extension<String>,
+) -> impl IntoResponse {
     match (AuthenticationTemplate {
-        token: match csrf.authenticity_token() {
-            Ok(token) => token,
-            Err(error) => {
-                return (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
-                    .into_response()
-            }
-        },
+        token,
         location: "Authentication",
     })
     .render()

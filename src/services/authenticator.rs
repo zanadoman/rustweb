@@ -37,15 +37,13 @@ impl AuthnBackend for AuthenticatorService {
 
 impl AuthenticatorService {
     pub async fn new(
-        database: &MySqlPool,
+        database: MySqlPool,
     ) -> Result<AuthManagerLayer<AuthenticatorService, MemoryStore>, Error>
     {
         Ok(AuthManagerLayerBuilder::new(
-            AuthenticatorService {
-                0: database.clone(),
-            },
+            AuthenticatorService { 0: database },
             SessionManagerLayer::new(MemoryStore::default())
-                .with_expiry(Expiry::OnInactivity(Duration::minutes(10)))
+                .with_expiry(Expiry::OnInactivity(Duration::days(1)))
                 .with_secure(false),
         )
         .build())

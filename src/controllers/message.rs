@@ -5,7 +5,7 @@ use axum::{
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
     response::{Html, IntoResponse, Redirect},
-    Form,
+    Extension, Form,
 };
 use axum_csrf::CsrfToken;
 use sqlx::MySqlPool;
@@ -16,9 +16,10 @@ use crate::templates::{message::MessageTemplate, messages::MessagesTemplate};
 
 #[instrument(skip(database, csrf))]
 pub async fn show(
+    Path(id): Path<i32>,
     State(database): State<Arc<MySqlPool>>,
     csrf: CsrfToken,
-    Path(id): Path<i32>,
+    Extension(token): Extension<String>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
     if headers.get("Hx-Request").is_none() {
@@ -33,13 +34,7 @@ pub async fn show(
         }
     };
     match (MessageTemplate {
-        token: match csrf.authenticity_token() {
-            Ok(token) => token,
-            Err(error) => {
-                return (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
-                    .into_response()
-            }
-        },
+        token,
         message: &message,
     })
     .render()
@@ -54,6 +49,7 @@ pub async fn show(
 pub async fn index(
     State(database): State<Arc<MySqlPool>>,
     csrf: CsrfToken,
+    Extension(token): Extension<String>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
     if headers.get("Hx-Request").is_none() {
@@ -67,13 +63,7 @@ pub async fn index(
         }
     };
     match (MessagesTemplate {
-        token: match csrf.authenticity_token() {
-            Ok(token) => token,
-            Err(error) => {
-                return (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
-                    .into_response()
-            }
-        },
+        token,
         messages: &messages,
     })
     .render()
@@ -101,8 +91,8 @@ pub async fn create(
 
 #[instrument(skip(database))]
 pub async fn update(
-    State(database): State<Arc<MySqlPool>>,
     Path(id): Path<i32>,
+    State(database): State<Arc<MySqlPool>>,
     Form(form): Form<MessageModel>,
 ) -> impl IntoResponse {
     let message = match MessageModel::find(database.as_ref(), id).await {
@@ -126,8 +116,8 @@ pub async fn update(
 
 #[instrument(skip(database))]
 pub async fn destroy(
-    State(database): State<Arc<MySqlPool>>,
     Path(id): Path<i32>,
+    State(database): State<Arc<MySqlPool>>,
 ) -> impl IntoResponse {
     let message = match MessageModel::find(database.as_ref(), id).await {
         Ok(Some(message)) => message,

@@ -1,27 +1,14 @@
-use core::fmt;
-use std::{
-    fmt::{Debug, Formatter},
-    result::Result,
-};
+use std::{fmt::Debug, result::Result};
 
 use axum_login::AuthUser;
 use password_auth::generate_hash;
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, query, query_as, Error, MySqlPool};
 
-#[derive(Clone, Deserialize, Serialize, FromRow)]
+#[derive(Debug, Clone, Deserialize, Serialize, FromRow)]
 pub struct UserModel {
     pub name: String,
     pub password: String,
-}
-
-impl Debug for UserModel {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        formatter
-            .debug_struct("UserModel")
-            .field("name", &self.name)
-            .finish()
-    }
 }
 
 impl AuthUser for UserModel {
