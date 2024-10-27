@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, query, query_as, Error, MySqlPool};
+use sqlx::{
+    mysql::MySqlQueryResult, prelude::FromRow, query, query_as, Error,
+    MySqlPool,
+};
 
 #[derive(Debug, Deserialize, Serialize, FromRow)]
 pub struct MessageModel {
@@ -28,7 +31,7 @@ impl MessageModel {
         database: &MySqlPool,
         title: &String,
         content: &String,
-    ) -> Result<u64, Error> {
+    ) -> Result<MySqlQueryResult, Error> {
         query!(
             "INSERT INTO messages (title, content) VALUES (?, ?)",
             title,
@@ -36,7 +39,6 @@ impl MessageModel {
         )
         .execute(database)
         .await
-        .map(|row| row.last_insert_id())
     }
 
     pub async fn update(
@@ -44,7 +46,7 @@ impl MessageModel {
         id: i32,
         title: &String,
         content: &String,
-    ) -> Result<(), Error> {
+    ) -> Result<MySqlQueryResult, Error> {
         query!(
             "UPDATE messages SET title = ?, content = ? WHERE id = ?",
             title,
@@ -53,13 +55,14 @@ impl MessageModel {
         )
         .execute(database)
         .await
-        .map(|_| ())
     }
 
-    pub async fn delete(database: &MySqlPool, id: i32) -> Result<(), Error> {
+    pub async fn delete(
+        database: &MySqlPool,
+        id: i32,
+    ) -> Result<MySqlQueryResult, Error> {
         query!("DELETE FROM messages WHERE id = ?", id)
             .execute(database)
             .await
-            .map(|_| ())
     }
 }

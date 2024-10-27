@@ -88,9 +88,10 @@ pub async fn create(
     match MessageModel::create(&database, &message.title, &message.content)
         .await
     {
-        Ok(id) => {
-            Redirect::to(format!("/message/{id}").as_str()).into_response()
-        }
+        Ok(result) => Redirect::to(
+            format!("/message/{}", result.last_insert_id()).as_str(),
+        )
+        .into_response(),
         Err(Error::Database(error)) => {
             warn!("{error}");
             (StatusCode::CONFLICT, error.to_string()).into_response()
