@@ -15,7 +15,7 @@ use crate::{
     templates::dashboard::DashboardTemplate,
 };
 
-#[instrument(skip(csrf, authenticator))]
+#[instrument(skip(authenticator, csrf))]
 pub async fn index(
     authenticator: AuthSession<AuthenticatorService>,
     csrf: CsrfToken,

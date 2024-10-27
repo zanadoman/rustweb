@@ -38,7 +38,7 @@ pub async fn authentication(
     }
 }
 
-#[instrument(skip(database))]
+#[instrument]
 pub async fn register(
     State(database): State<MySqlPool>,
     Form(form): Form<UserModel>,
