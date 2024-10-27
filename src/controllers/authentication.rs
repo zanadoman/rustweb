@@ -9,8 +9,8 @@ use axum::{
 use axum_csrf::CsrfToken;
 use axum_login::AuthSession;
 use http::StatusCode;
-use sqlx::MySqlPool;
-use tracing::instrument;
+use sqlx::{Error, MySqlPool};
+use tracing::{error, instrument, warn};
 
 use crate::{
     models::user::UserModel, services::authenticator::AuthenticatorService,
@@ -28,9 +28,13 @@ pub async fn authentication(
     })
     .render()
     {
-        Ok(rendered) => (StatusCode::OK, csrf, Html(rendered)).into_response(),
-        Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
-            .into_response(),
+        Ok(authentication) => {
+            (StatusCode::OK, csrf, Html(authentication)).into_response()
+        }
+        Err(error) => {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
     }
 }
 
@@ -41,7 +45,14 @@ pub async fn register(
 ) -> impl IntoResponse {
     match UserModel::create(&database, &form.name, &form.password).await {
         Ok(..) => (StatusCode::FOUND, [("HX-Location", "/")]).into_response(),
-        Err(error) => (StatusCode::CONFLICT, error.to_string()).into_response(),
+        Err(Error::Database(error)) => {
+            warn!("{error}");
+            (StatusCode::CONFLICT, error.to_string()).into_response()
+        }
+        Err(error) => {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
     }
 }
 
@@ -51,17 +62,20 @@ pub async fn login(
     Form(form): Form<UserModel>,
 ) -> impl IntoResponse {
     match authenticator.authenticate(form).await {
-        Ok(Some(user)) => match authenticator.login(&user).await {
-            Ok(..) => (StatusCode::FOUND, [("HX-Location", "/dashboard")])
-                .into_response(),
-            Err(error) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+        Ok(Some(user)) => {
+            if let Err(error) = authenticator.login(&user).await {
+                error!("{error}");
+                StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            } else {
+                (StatusCode::FOUND, [("HX-Location", "/dashboard")])
                     .into_response()
             }
-        },
+        }
         Ok(None) => StatusCode::UNAUTHORIZED.into_response(),
-        Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
-            .into_response(),
+        Err(error) => {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
     }
 }
 
@@ -69,9 +83,9 @@ pub async fn login(
 pub async fn logout(
     mut authenticator: AuthSession<AuthenticatorService>,
 ) -> impl IntoResponse {
-    match authenticator.logout().await {
-        Ok(..) => (StatusCode::FOUND, [("HX-Location", "/")]).into_response(),
-        Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
-            .into_response(),
+    if let Err(error) = authenticator.logout().await {
+        error!("{error}");
+        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
     }
+    (StatusCode::FOUND, [("HX-Location", "/")]).into_response()
 }

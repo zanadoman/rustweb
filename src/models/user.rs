@@ -1,14 +1,30 @@
-use std::{fmt::Debug, result::Result};
+use std::{
+    fmt::{self, Debug, Formatter},
+    result::Result,
+};
 
 use axum_login::AuthUser;
 use password_auth::generate_hash;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, query, query_as, Error, MySqlPool};
+use sqlx::{
+    mysql::MySqlQueryResult, prelude::FromRow, query, query_as, Error,
+    MySqlPool,
+};
 
-#[derive(Debug, Clone, Deserialize, Serialize, FromRow)]
+#[derive(Clone, Deserialize, Serialize, FromRow)]
 pub struct UserModel {
     pub name: String,
     pub password: String,
+}
+
+impl Debug for UserModel {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("UserModel")
+            .field("name", &self.name)
+            .field("password", &"********")
+            .finish()
+    }
 }
 
 impl AuthUser for UserModel {
@@ -28,20 +44,16 @@ impl UserModel {
         database: &MySqlPool,
         name: &String,
     ) -> Result<Option<Self>, Error> {
-        query_as!(
-            UserModel,
-            "SELECT * FROM users WHERE name = ? LIMIT 1",
-            name
-        )
-        .fetch_optional(database)
-        .await
+        query_as!(Self, "SELECT * FROM users WHERE name = ? LIMIT 1", name)
+            .fetch_optional(database)
+            .await
     }
 
     pub async fn create(
         database: &MySqlPool,
         name: &String,
         password: &String,
-    ) -> Result<(), Error> {
+    ) -> Result<MySqlQueryResult, Error> {
         query!(
             "INSERT INTO users (name, password) VALUES (?, ?)",
             name,
@@ -49,6 +61,5 @@ impl UserModel {
         )
         .execute(database)
         .await
-        .map(|_| ())
     }
 }
