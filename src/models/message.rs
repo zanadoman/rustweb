@@ -13,17 +13,13 @@ impl MessageModel {
         database: &MySqlPool,
         id: i32,
     ) -> Result<Option<Self>, Error> {
-        query_as!(
-            MessageModel,
-            "SELECT * FROM messages WHERE id = ? LIMIT 1",
-            id
-        )
-        .fetch_optional(database)
-        .await
+        query_as!(Self, "SELECT * FROM messages WHERE id = ? LIMIT 1", id)
+            .fetch_optional(database)
+            .await
     }
 
     pub async fn all(database: &MySqlPool) -> Result<Vec<Self>, Error> {
-        query_as!(MessageModel, "SELECT * FROM messages")
+        query_as!(Self, "SELECT * FROM messages")
             .fetch_all(database)
             .await
     }
@@ -44,24 +40,24 @@ impl MessageModel {
     }
 
     pub async fn update(
-        &self,
         database: &MySqlPool,
-        title: Option<&String>,
-        content: Option<&String>,
+        id: i32,
+        title: &String,
+        content: &String,
     ) -> Result<(), Error> {
         query!(
             "UPDATE messages SET title = ?, content = ? WHERE id = ?",
-            title.unwrap_or(&self.title),
-            content.unwrap_or(&self.content),
-            self.id
+            title,
+            content,
+            id,
         )
         .execute(database)
         .await
         .map(|_| ())
     }
 
-    pub async fn delete(&self, database: &MySqlPool) -> Result<(), Error> {
-        query!("DELETE FROM messages WHERE id = ?", self.id)
+    pub async fn delete(database: &MySqlPool, id: i32) -> Result<(), Error> {
+        query!("DELETE FROM messages WHERE id = ?", id)
             .execute(database)
             .await
             .map(|_| ())

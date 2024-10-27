@@ -14,7 +14,7 @@ password-auth = { version = "*" }
 serde = { version = "*", features = ["derive"] }
 sqlx = { version = "*", features = ["mysql", "runtime-tokio"] }
 time = { version = "*" }
-tokio = { version = "*", features = ["rt-multi-thread", "signal"] }
+tokio = { version = "*", features = ["macros", "rt-multi-thread", "signal"] }
 tower-http = { version = "*", features = ["fs", "trace"] }
 tower-sessions = { version = "*" }
 tracing = { version = "*" }
