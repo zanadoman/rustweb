@@ -10,6 +10,7 @@ use sqlx::{
     mysql::MySqlQueryResult, prelude::FromRow, query, query_as, Error,
     MySqlPool,
 };
+use tracing::instrument;
 
 #[derive(Clone, Deserialize, Serialize, FromRow)]
 pub struct UserModel {
@@ -40,6 +41,7 @@ impl AuthUser for UserModel {
 }
 
 impl UserModel {
+    #[instrument(level = "trace")]
     pub async fn find(
         database: &MySqlPool,
         name: &String,
@@ -49,6 +51,7 @@ impl UserModel {
             .await
     }
 
+    #[instrument(level = "trace")]
     pub async fn create(
         database: &MySqlPool,
         name: &String,

@@ -3,6 +3,7 @@ use sqlx::{
     mysql::MySqlQueryResult, prelude::FromRow, query, query_as, Error,
     MySqlPool,
 };
+use tracing::instrument;
 
 #[derive(Debug, Deserialize, Serialize, FromRow)]
 pub struct MessageModel {
@@ -12,6 +13,7 @@ pub struct MessageModel {
 }
 
 impl MessageModel {
+    #[instrument(level = "trace")]
     pub async fn find(
         database: &MySqlPool,
         id: i32,
@@ -21,12 +23,14 @@ impl MessageModel {
             .await
     }
 
+    #[instrument(level = "trace")]
     pub async fn all(database: &MySqlPool) -> Result<Vec<Self>, Error> {
         query_as!(Self, "SELECT * FROM messages")
             .fetch_all(database)
             .await
     }
 
+    #[instrument(level = "trace")]
     pub async fn create(
         database: &MySqlPool,
         title: &String,
@@ -41,6 +45,7 @@ impl MessageModel {
         .await
     }
 
+    #[instrument(level = "trace")]
     pub async fn update(
         database: &MySqlPool,
         id: i32,
@@ -57,6 +62,7 @@ impl MessageModel {
         .await
     }
 
+    #[instrument(level = "trace")]
     pub async fn delete(
         database: &MySqlPool,
         id: i32,
