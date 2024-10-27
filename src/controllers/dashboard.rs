@@ -8,7 +8,7 @@ use axum::{
 use axum_csrf::CsrfToken;
 use axum_login::AuthSession;
 use http::StatusCode;
-use tracing::instrument;
+use tracing::{error, instrument};
 
 use crate::{
     services::authenticator::AuthenticatorService,
@@ -21,22 +21,25 @@ pub async fn index(
     csrf: CsrfToken,
     Extension(token): Extension<Arc<String>>,
 ) -> impl IntoResponse {
-    match authenticator.user {
-        Some(user) => match (DashboardTemplate {
-            token: &token,
-            location: "Dashboard",
-            username: &user.name,
-        })
-        .render()
-        {
-            Ok(rendered) => {
-                (StatusCode::OK, csrf, Html(rendered)).into_response()
-            }
-            Err(error) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+    match (DashboardTemplate {
+        token: &token,
+        location: "Dashboard",
+        username: &match authenticator.user {
+            Some(user) => user.name,
+            None => {
+                return (StatusCode::FOUND, [("HX-Location", "/")])
                     .into_response()
             }
         },
-        None => (StatusCode::FOUND, [("Location", "/")]).into_response(),
+    })
+    .render()
+    {
+        Ok(dashboard) => {
+            (StatusCode::OK, csrf, Html(dashboard)).into_response()
+        }
+        Err(error) => {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
     }
 }
