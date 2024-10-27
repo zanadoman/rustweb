@@ -14,7 +14,7 @@ use tracing::{error, instrument, warn};
 use crate::models::message::MessageModel;
 use crate::templates::message::MessageTemplate;
 
-#[instrument(skip(csrf))]
+#[instrument(level = "debug", skip(csrf))]
 pub async fn show(
     Path(id): Path<i32>,
     State(database): State<MySqlPool>,
@@ -46,7 +46,7 @@ pub async fn show(
     }
 }
 
-#[instrument(skip(csrf))]
+#[instrument(level = "debug", skip(csrf))]
 pub async fn index(
     State(database): State<MySqlPool>,
     csrf: CsrfToken,
@@ -80,7 +80,7 @@ pub async fn index(
     (StatusCode::OK, csrf, Html(messages)).into_response()
 }
 
-#[instrument]
+#[instrument(level = "debug")]
 pub async fn create(
     State(database): State<MySqlPool>,
     Form(message): Form<MessageModel>,
@@ -103,7 +103,7 @@ pub async fn create(
     }
 }
 
-#[instrument]
+#[instrument(level = "debug")]
 pub async fn update(
     Path(id): Path<i32>,
     State(database): State<MySqlPool>,
@@ -126,7 +126,7 @@ pub async fn update(
     }
 }
 
-#[instrument]
+#[instrument(level = "debug")]
 pub async fn destroy(
     Path(id): Path<i32>,
     State(database): State<MySqlPool>,

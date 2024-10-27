@@ -17,7 +17,7 @@ use crate::{
     templates::authentication::AuthenticationTemplate,
 };
 
-#[instrument(skip(csrf))]
+#[instrument(level = "debug", skip(csrf))]
 pub async fn authentication(
     csrf: CsrfToken,
     Extension(token): Extension<Arc<String>>,
@@ -38,7 +38,7 @@ pub async fn authentication(
     }
 }
 
-#[instrument]
+#[instrument(level = "debug")]
 pub async fn register(
     State(database): State<MySqlPool>,
     Form(form): Form<UserModel>,
@@ -56,7 +56,7 @@ pub async fn register(
     }
 }
 
-#[instrument(skip(authenticator))]
+#[instrument(level = "debug", skip(authenticator))]
 pub async fn login(
     mut authenticator: AuthSession<AuthenticatorService>,
     Form(form): Form<UserModel>,
@@ -79,7 +79,7 @@ pub async fn login(
     }
 }
 
-#[instrument(skip(authenticator))]
+#[instrument(level = "debug", skip(authenticator))]
 pub async fn logout(
     mut authenticator: AuthSession<AuthenticatorService>,
 ) -> impl IntoResponse {

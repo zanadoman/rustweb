@@ -47,7 +47,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .layer(TraceLayer::new_for_http().make_span_with(
                 |request: &Request| {
                     span! {
-                        Level::DEBUG,
+                        Level::INFO,
                         "request",
                         method = %request.method(),
                         route = %request.uri(),
