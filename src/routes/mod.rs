@@ -5,9 +5,11 @@ mod message;
 use axum::Router;
 use axum_login::login_required;
 use sqlx::MySqlPool;
+use tracing::instrument;
 
 use crate::services::authenticator::AuthenticatorService;
 
+#[instrument(level = "debug")]
 pub fn routes() -> Router<MySqlPool> {
     message::routes()
         .merge(dashboard::routes())
