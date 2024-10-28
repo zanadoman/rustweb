@@ -3,12 +3,20 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{
     extract::{Path, State},
-    response::{Html, IntoResponse, Redirect},
+    response::{
+        sse::{Event, KeepAlive, Sse},
+        Html, IntoResponse, Redirect,
+    },
     Extension, Form,
 };
 use axum_csrf::CsrfToken;
+use futures::stream::Stream;
 use http::{HeaderMap, StatusCode};
 use sqlx::{Error, MySqlPool};
+use tokio::sync::broadcast::Sender;
+use tokio_stream::wrappers::{
+    errors::BroadcastStreamRecvError, BroadcastStream,
+};
 use tracing::{error, instrument, warn};
 
 use crate::models::message::MessageModel;
@@ -142,4 +150,12 @@ pub async fn destroy(
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
         }
     }
+}
+
+#[instrument(level = "debug")]
+pub async fn events(
+    State(transmitter): State<Sender<Event>>,
+) -> Sse<impl Stream<Item = Result<Event, BroadcastStreamRecvError>>> {
+    Sse::new(BroadcastStream::new(transmitter.subscribe()))
+        .keep_alive(KeepAlive::default())
 }
