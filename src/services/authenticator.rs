@@ -6,10 +6,11 @@ use password_auth::verify_password;
 use sqlx::{Error, MySqlPool};
 use time::Duration;
 use tower_sessions::{Expiry, MemoryStore, SessionManagerLayer};
+use tracing::instrument;
 
 use crate::models::user::UserModel;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct AuthenticatorService(MySqlPool);
 
 #[async_trait]
@@ -18,6 +19,7 @@ impl AuthnBackend for AuthenticatorService {
     type Credentials = UserModel;
     type Error = Error;
 
+    #[instrument(level = "trace")]
     async fn authenticate(
         &self,
         credentials: Self::Credentials,
@@ -27,6 +29,7 @@ impl AuthnBackend for AuthenticatorService {
         }))
     }
 
+    #[instrument(level = "trace")]
     async fn get_user(
         &self,
         name: &UserId<Self>,
@@ -36,6 +39,7 @@ impl AuthnBackend for AuthenticatorService {
 }
 
 impl AuthenticatorService {
+    #[instrument(level = "debug")]
     pub async fn new(
         database: MySqlPool,
     ) -> Result<AuthManagerLayer<AuthenticatorService, MemoryStore>, Error>
