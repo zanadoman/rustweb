@@ -1,11 +1,11 @@
 use axum::async_trait;
 use axum_login::{
+    tower_sessions::{Expiry, MemoryStore, SessionManagerLayer},
     AuthManagerLayer, AuthManagerLayerBuilder, AuthnBackend, UserId,
 };
 use password_auth::verify_password;
 use sqlx::{Error, MySqlPool};
 use time::Duration;
-use tower_sessions::{Expiry, MemoryStore, SessionManagerLayer};
 use tracing::instrument;
 
 use crate::models::user::UserModel;

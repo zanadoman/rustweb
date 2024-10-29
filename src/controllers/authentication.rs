@@ -3,12 +3,12 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{
     extract::State,
+    http::StatusCode,
     response::{Html, IntoResponse},
     Extension, Form,
 };
 use axum_csrf::CsrfToken;
 use axum_login::AuthSession;
-use http::StatusCode;
 use sqlx::Error;
 use tracing::{error, instrument, warn};
 

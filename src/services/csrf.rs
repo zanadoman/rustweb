@@ -3,11 +3,11 @@ use std::sync::Arc;
 use axum::{
     body::Body,
     extract::Request,
+    http::{Method, StatusCode},
     middleware::Next,
     response::{IntoResponse, Response},
 };
 use axum_csrf::CsrfToken;
-use http::{Method, StatusCode};
 use tracing::{error, instrument, warn};
 
 #[instrument(level = "trace")]
