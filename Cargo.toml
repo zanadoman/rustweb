@@ -9,7 +9,6 @@ axum = { version = "*" }
 axum_csrf = { version = "*", features = ["layer"] }
 axum-login = { version = "*" }
 dotenv = { version = "*" }
-futures = { version = "*" }
 http = { version = "*" }
 password-auth = { version = "*" }
 serde = { version = "*", features = ["derive"] }

@@ -3,14 +3,13 @@
 
 <p>{{ username }}</p>
 
-<div id="messages" hx-get="/messages" hx-trigger="load" hx-swap="innerHTML"
-    hx-ext="sse" sse-connect="/messages/events"></div>
+<div sse-connect="/messages/events" hx-get="/messages" hx-trigger="load, sse:messages" hx-swap="innerHTML"></div>
 
-<form hx-post="/messages" hx-target="#messages" hx-swap="beforeend" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
+<form hx-post="/messages" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
     <label>Title</label>
-    <input type="text" name="title" />
+    <input type="text" name="title">
     <label>Content</label>
-    <input type="text" name="content" />
+    <input type="text" name="content">
     <button type="submit">Send</button>
 </form>
 

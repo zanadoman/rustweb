@@ -9,11 +9,9 @@
     <script src="/assets/js/htmx.sse.js"></script>
 </head>
 
-<body>
+<body hx-ext="sse">
     <header>{{ location }}</header>
-
     <main>{% block content %}{% endblock content %}</main>
-
     <footer id="footer" hx-preserve>
         <a href="https://github.com/zanadoman/rustweb">GitHub</a>
     </footer>

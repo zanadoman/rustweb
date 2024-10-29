@@ -36,7 +36,7 @@ pub async fn show(
         token: &token,
         message: &match MessageModel::find(&state.database, id).await {
             Ok(Some(message)) => message,
-            Ok(None) => return StatusCode::NOT_FOUND.into_response(),
+            Ok(None) => return StatusCode::RESET_CONTENT.into_response(),
             Err(error) => {
                 error!("{error}");
                 return StatusCode::INTERNAL_SERVER_ERROR.into_response();
@@ -99,9 +99,16 @@ pub async fn create(
     )
     .await
     {
-        Ok(result) => Redirect::to(
-            format!("/message/{}", result.last_insert_id()).as_str(),
-        )
+        Ok(..) => {
+            if let Err(error) = state.messages.send(
+                Event::default().event("messages").data("Message created."),
+            ) {
+                error!("{error}");
+                StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            } else {
+                StatusCode::NO_CONTENT.into_response()
+            }
+        }
         .into_response(),
         Err(Error::Database(error)) => {
             warn!("{error}");
@@ -129,14 +136,15 @@ pub async fn update(
     .await
     {
         Ok(..) => {
-            if let Err(error) = state
-                .messages
-                .send(Event::default().event(format!("update{id}")).data(""))
-            {
+            if let Err(error) = state.messages.send(
+                Event::default()
+                    .event(format!("message{id}"))
+                    .data("Message updated."),
+            ) {
                 error!("{error}");
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             } else {
-                StatusCode::OK.into_response()
+                StatusCode::NO_CONTENT.into_response()
             }
         }
         Err(Error::Database(error)) => {
@@ -157,14 +165,15 @@ pub async fn destroy(
 ) -> impl IntoResponse {
     match MessageModel::delete(&state.database, id).await {
         Ok(..) => {
-            if let Err(error) = state
-                .messages
-                .send(Event::default().event(format!("update{id}")).data(""))
-            {
+            if let Err(error) = state.messages.send(
+                Event::default()
+                    .event(format!("message{id}"))
+                    .data("Message destroyed."),
+            ) {
                 error!("{error}");
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             } else {
-                StatusCode::OK.into_response()
+                StatusCode::NO_CONTENT.into_response()
             }
         }
         Err(Error::Database(error)) => {
