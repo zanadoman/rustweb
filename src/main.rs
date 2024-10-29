@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .layer(from_fn(csrf_verifier))
             .layer(from_fn(csrf_provider))
             .layer(CsrfLayer::new(CsrfConfig::default()))
-            .layer(AuthenticatorService::new(state.database.clone()).await?)
+            .layer(AuthenticatorService::new(state.database().clone()).await?)
             .layer(TraceLayer::new_for_http().make_span_with(
                 |request: &Request| {
                     span! {

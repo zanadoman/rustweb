@@ -44,7 +44,8 @@ pub async fn register(
     State(state): State<Arc<StateService>>,
     Form(form): Form<UserModel>,
 ) -> impl IntoResponse {
-    match UserModel::create(&state.database, &form.name, &form.password).await {
+    match UserModel::create(&state.database(), &form.name, &form.password).await
+    {
         Ok(..) => (StatusCode::FOUND, [("HX-Location", "/")]).into_response(),
         Err(Error::Database(error)) => {
             warn!("{error}");

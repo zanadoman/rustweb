@@ -34,7 +34,7 @@ pub async fn show(
     }
     match (MessageTemplate {
         token: &token,
-        message: &match MessageModel::find(&state.database, id).await {
+        message: &match MessageModel::find(&state.database(), id).await {
             Ok(Some(message)) => message,
             Ok(None) => return StatusCode::RESET_CONTENT.into_response(),
             Err(error) => {
@@ -64,7 +64,7 @@ pub async fn index(
         return Redirect::to("/dashboard").into_response();
     }
     let mut messages = String::default();
-    for message in match MessageModel::all(&state.database).await {
+    for message in match MessageModel::all(&state.database()).await {
         Ok(messages) => messages,
         Err(error) => {
             error!("{error}");
@@ -93,15 +93,18 @@ pub async fn create(
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
     match MessageModel::create(
-        &state.database,
+        &state.database(),
         &message.title,
         &message.content,
     )
     .await
     {
         Ok(..) => {
-            if let Err(error) = state.messages.send(
-                Event::default().event("messages").data("Message created."),
+            if let Err(error) = state.messages().send(
+                Event::default()
+                    .id(state.id().to_string())
+                    .event("messages")
+                    .data("Message created."),
             ) {
                 error!("{error}");
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
@@ -128,7 +131,7 @@ pub async fn update(
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
     match MessageModel::update(
-        &state.database,
+        &state.database(),
         id,
         &message.title,
         &message.content,
@@ -136,8 +139,9 @@ pub async fn update(
     .await
     {
         Ok(..) => {
-            if let Err(error) = state.messages.send(
+            if let Err(error) = state.messages().send(
                 Event::default()
+                    .id(state.id().to_string())
                     .event(format!("message{id}"))
                     .data("Message updated."),
             ) {
@@ -163,10 +167,11 @@ pub async fn destroy(
     Path(id): Path<i32>,
     State(state): State<Arc<StateService>>,
 ) -> impl IntoResponse {
-    match MessageModel::delete(&state.database, id).await {
+    match MessageModel::delete(&state.database(), id).await {
         Ok(..) => {
-            if let Err(error) = state.messages.send(
+            if let Err(error) = state.messages().send(
                 Event::default()
+                    .id(state.id().to_string())
                     .event(format!("message{id}"))
                     .data("Message destroyed."),
             ) {
@@ -191,6 +196,6 @@ pub async fn destroy(
 pub async fn events(
     State(state): State<Arc<StateService>>,
 ) -> Sse<impl Stream<Item = Result<Event, BroadcastStreamRecvError>>> {
-    Sse::new(BroadcastStream::new(state.messages.subscribe()))
+    Sse::new(BroadcastStream::new(state.messages().subscribe()))
         .keep_alive(KeepAlive::default())
 }
