@@ -1,11 +1,8 @@
 {% if let Some(id) = message.id %}
-<div id="message{{ id }}">
+<div hx-get="/message/{{ id }}" hx-trigger="sse:update{{ id }}" hx-swap="outerHtml error:delete">
     <p>{{ message.title }} {{ message.content }}</p>
-    <div id="message{{ id }}-actions" hx-preserve>
-        <button hx-delete="/message/{{ id }}" hx-target="#message{{ id }}" hx-swap="outerHTML"
-            hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Delete</button>
-        <button hx-put="/message/{{ id }}" hx-include="form" hx-target="#message{{ id }}" hx-swap="outerHTML"
-            hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Edit</button>
-    </div>
+    <button hx-delete="/message/{{ id }}" hx-swap="none" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Delete</button>
+    <button hx-put="/message/{{ id }}" hx-include="form" hx-swap="none"
+        hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Edit</button>
 </div>
 {% endif %}

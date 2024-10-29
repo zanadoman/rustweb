@@ -9,11 +9,12 @@ use axum::{
 use axum_csrf::CsrfToken;
 use axum_login::AuthSession;
 use http::StatusCode;
-use sqlx::{Error, MySqlPool};
+use sqlx::Error;
 use tracing::{error, instrument, warn};
 
 use crate::{
-    models::user::UserModel, services::authenticator::AuthenticatorService,
+    models::user::UserModel,
+    services::{authenticator::AuthenticatorService, state::StateService},
     templates::authentication::AuthenticationTemplate,
 };
 
@@ -40,10 +41,10 @@ pub async fn authentication(
 
 #[instrument(level = "debug")]
 pub async fn register(
-    State(database): State<MySqlPool>,
+    State(state): State<Arc<StateService>>,
     Form(form): Form<UserModel>,
 ) -> impl IntoResponse {
-    match UserModel::create(&database, &form.name, &form.password).await {
+    match UserModel::create(&state.database, &form.name, &form.password).await {
         Ok(..) => (StatusCode::FOUND, [("HX-Location", "/")]).into_response(),
         Err(Error::Database(error)) => {
             warn!("{error}");

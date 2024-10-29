@@ -1,10 +1,11 @@
+use std::sync::Arc;
+
 use axum::{routing::get, Router};
-use sqlx::MySqlPool;
 use tracing::instrument;
 
-use crate::controllers::dashboard::index;
+use crate::{controllers::dashboard::index, services::state::StateService};
 
 #[instrument(level = "debug")]
-pub fn routes() -> Router<MySqlPool> {
+pub fn routes() -> Router<Arc<StateService>> {
     Router::default().route("/dashboard", get(index))
 }
