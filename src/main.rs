@@ -8,7 +8,7 @@ use std::{env::var, error::Error, sync::Arc};
 
 use axum::{extract::Request, middleware::from_fn, serve};
 use axum_csrf::{CsrfConfig, CsrfLayer};
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use routes::routes;
 use services::{
     authenticator::AuthenticatorService,
