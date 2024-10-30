@@ -58,7 +58,7 @@ impl UserModel {
         password: &String,
     ) -> Result<MySqlQueryResult, Error> {
         query!(
-            "INSERT INTO users (name, password) VALUES (?, ?)",
+            "INSERT INTO users VALUES (?, ?)",
             name,
             generate_hash(password)
         )
