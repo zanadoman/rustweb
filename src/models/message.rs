@@ -5,7 +5,7 @@ use sqlx::{
 };
 use tracing::instrument;
 
-#[derive(Debug, Deserialize, Serialize, FromRow)]
+#[derive(Clone, Debug, Deserialize, Serialize, FromRow)]
 pub struct MessageModel {
     pub id: Option<i32>,
     pub title: String,

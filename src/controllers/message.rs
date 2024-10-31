@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{error::Error, sync::Arc};
 
 use askama::Template;
 use axum::{
@@ -11,11 +11,7 @@ use axum::{
     Extension, Form,
 };
 use axum_csrf::CsrfToken;
-use sqlx::Error;
-use tokio_stream::{
-    wrappers::{errors::BroadcastStreamRecvError, BroadcastStream},
-    Stream,
-};
+use tokio_stream::{wrappers::BroadcastStream, Stream, StreamExt};
 use tracing::{error, instrument, warn};
 
 use crate::templates::message::MessageTemplate;
@@ -45,7 +41,7 @@ pub async fn show(
     })
     .render()
     {
-        Ok(rendered) => (StatusCode::OK, csrf, Html(rendered)).into_response(),
+        Ok(message) => (StatusCode::OK, csrf, Html(message)).into_response(),
         Err(error) => {
             error!("{error}");
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
@@ -99,13 +95,24 @@ pub async fn create(
     )
     .await
     {
-        Ok(..) => {
-            if let Err(error) = state.messages().send(
+        Ok(result) => {
+            if let Err(error) = state.messages().send((
                 Event::default()
                     .id(state.id().to_string())
-                    .event("messages")
-                    .data("Message created."),
-            ) {
+                    .event("messages"),
+                Some(MessageModel {
+                    id: Some(match result.last_insert_id().try_into() {
+                        Ok(id) => id,
+                        Err(error) => {
+                            error!("{error}");
+                            return StatusCode::INTERNAL_SERVER_ERROR
+                                .into_response();
+                        }
+                    }),
+                    title: message.title,
+                    content: message.content,
+                }),
+            )) {
                 error!("{error}");
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             } else {
@@ -113,7 +120,7 @@ pub async fn create(
             }
         }
         .into_response(),
-        Err(Error::Database(error)) => {
+        Err(sqlx::Error::Database(error)) => {
             warn!("{error}");
             (StatusCode::CONFLICT, error.to_string()).into_response()
         }
@@ -139,19 +146,23 @@ pub async fn update(
     .await
     {
         Ok(..) => {
-            if let Err(error) = state.messages().send(
+            if let Err(error) = state.messages().send((
                 Event::default()
                     .id(state.id().to_string())
-                    .event(format!("message{id}"))
-                    .data("Message updated."),
-            ) {
+                    .event(format!("message{id}")),
+                Some(MessageModel {
+                    id: Some(id),
+                    title: message.title,
+                    content: message.content,
+                }),
+            )) {
                 error!("{error}");
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             } else {
                 StatusCode::NO_CONTENT.into_response()
             }
         }
-        Err(Error::Database(error)) => {
+        Err(sqlx::Error::Database(error)) => {
             warn!("{error}");
             (StatusCode::CONFLICT, error.to_string()).into_response()
         }
@@ -169,19 +180,19 @@ pub async fn destroy(
 ) -> impl IntoResponse {
     match MessageModel::delete(&state.database(), id).await {
         Ok(..) => {
-            if let Err(error) = state.messages().send(
+            if let Err(error) = state.messages().send((
                 Event::default()
                     .id(state.id().to_string())
-                    .event(format!("message{id}"))
-                    .data("Message destroyed."),
-            ) {
+                    .event(format!("message{id}")),
+                None,
+            )) {
                 error!("{error}");
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             } else {
                 StatusCode::NO_CONTENT.into_response()
             }
         }
-        Err(Error::Database(error)) => {
+        Err(sqlx::Error::Database(error)) => {
             warn!("{error}");
             (StatusCode::CONFLICT, error.to_string()).into_response()
         }
@@ -192,10 +203,37 @@ pub async fn destroy(
     }
 }
 
-#[instrument(level = "debug")]
 pub async fn events(
     State(state): State<Arc<StateService>>,
-) -> Sse<impl Stream<Item = Result<Event, BroadcastStreamRecvError>>> {
-    Sse::new(BroadcastStream::new(state.messages().subscribe()))
-        .keep_alive(KeepAlive::default())
+    Extension(token): Extension<Arc<String>>,
+) -> Sse<impl Stream<Item = Result<Event, Box<dyn Error + Send + Sync>>>> {
+    Sse::new(BroadcastStream::new(state.messages().subscribe()).map(
+        move |event| match event {
+            Ok((event, message)) => {
+                Ok(event.data(if let Some(message) = message {
+                    match (MessageTemplate {
+                        token: &token,
+                        message: &message,
+                    })
+                    .render()
+                    {
+                        Ok(message) => message,
+                        Err(error) => {
+                            error!("{error}");
+                            return Err(
+                                Box::new(error) as Box<dyn Error + Send + Sync>
+                            );
+                        }
+                    }
+                } else {
+                    String::default()
+                }))
+            }
+            Err(error) => {
+                error!("{error}");
+                Err(Box::new(error) as Box<dyn Error + Send + Sync>)
+            }
+        },
+    ))
+    .keep_alive(KeepAlive::default())
 }

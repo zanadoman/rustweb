@@ -5,11 +5,13 @@ use sqlx::{Error, MySqlPool};
 use tokio::sync::broadcast::{channel, Sender};
 use tracing::instrument;
 
+use crate::models::message::MessageModel;
+
 #[derive(Debug)]
 pub struct StateService {
     id: AtomicU64,
     database: MySqlPool,
-    messages: Sender<Event>,
+    messages: Sender<(Event, Option<MessageModel>)>,
 }
 
 impl StateService {
@@ -33,7 +35,7 @@ impl StateService {
     }
 
     #[instrument(level = "trace")]
-    pub fn messages(&self) -> &Sender<Event> {
+    pub fn messages(&self) -> &Sender<(Event, Option<MessageModel>)> {
         &self.messages
     }
 }
