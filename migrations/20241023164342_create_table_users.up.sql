@@ -1,4 +1,4 @@
-CREATE TABLE users(
+CREATE TABLE users (
     name VARCHAR(50) PRIMARY KEY,
-    password VARCHAR(100) NOT NULL
+    password VARCHAR(97) NOT NULL
 );

@@ -151,6 +151,7 @@ pub async fn validate_password(
 ) -> impl IntoResponse {
     match (AuthenticationFormPasswordTemplate {
         token: &token,
+        value: &user.password,
         error: UserModel::validate_password(&user.password).as_deref(),
     })
     .render()
