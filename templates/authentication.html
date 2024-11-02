@@ -1,20 +1,64 @@
-{% extends "base/base.html" %}
+{% extends "./base/base.html" %}
 {% block content %}
 
-<form hx-post="/register" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
-    <label for="register-form-name">Name</label>
-    <input id="register-form-name" type="text" name="name" autocomplete="username">
-    <label for="register-form-password">Password</label>
-    <input id="register-form-password" type="password" name="password">
-    <button type="submit">Register</button>
-</form>
+<div class="row mb-2 mb-md-5 justify-content-center">
+    <div class="col-12 col-lg-8 row p-0 bg-body-secondary rounded-3 shadow overflow-hidden">
+        <div class="d-flex col-12 col-md-4 p-0 justify-content-center overflow-hidden">
+            <img class="h-100" src="/assets/images/authentication.jpg" alt="abstract">
+        </div>
+        <div class="col-12 col-md-8 p-5">
+            <h2 class="mb-5 fw-bold text-center">LOGIN</h2>
+            <p class="mb-4 text-muted text-center">Please enter your name and password!</p>
+            <form hx-post="/login" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
+                <div class="form-floating mb-3">
+                    <input id="login-form-name" class="form-control border-0" type="text" name="name" placeholder="Name" autocomplete="username">
+                    <label for="login-form-name">Name</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input id="login-form-password" class="form-control border-0" type="password" name="password" placeholder="Password">
+                    <label for="login-form-password">Password</label>
+                </div>
+                <button class="btn btn-primary w-100 mb-5" type="submit">Login</button>
+            </form>
+            <p class="text-center">
+                Don't have an account?
+                <a class="text-muted fw-bold link-underline-secondary link-underline-opacity-0 link-underline-opacity-100-hover"
+                    href="#">
+                    Register
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
 
-<form hx-post="/login" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
-    <label for="login-form-name">Name</label>
-    <input id="login-form-name" type="text" name="name" autocomplete="username">
-    <label for="login-form-password">Password</label>
-    <input id="login-form-password" type="password" name="password">
-    <button type="submit">Login</button>
-</form>
+<div class="row mt-2 mt-md-5 justify-content-center">
+    <div class="col-12 col-lg-8 row p-0 bg-body-secondary rounded-3 shadow overflow-hidden">
+        <div class="d-flex col-12 col-md-4 p-0 justify-content-center overflow-hidden">
+            <img class="h-100" src="/assets/images/authentication.jpg" alt="abstract">
+        </div>
+        <div class="col-12 col-md-8 p-5">
+            <h2 class="mb-5 fw-bold text-center">REGISTER</h2>
+            <p class="mb-4 text-muted text-center">Please enter a name and password!</p>
+            <form hx-post="/register" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
+                <div class="form-floating mb-3">
+                    <input id="register-form-name" class="form-control border-0" type="text" name="name" placeholder="Name" autocomplete="username">
+                    <label for="register-form-name">Name</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input id="register-form-password" class="form-control border-0" type="password" name="password" placeholder="Password">
+                    <label for="register-form-password">Password</label>
+                </div>
+                <button class="btn btn-primary w-100 mb-5" type="submit">Register</button>
+            </form>
+            <p class="text-center">
+                Aleady have an account?
+                <a class="text-muted fw-bold link-underline-secondary link-underline-opacity-0 link-underline-opacity-100-hover"
+                    href="#">
+                    Login
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
 
 {% endblock content %}
