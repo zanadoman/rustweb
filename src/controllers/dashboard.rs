@@ -21,16 +21,13 @@ pub async fn index(
     csrf: CsrfToken,
     Extension(token): Extension<Arc<String>>,
 ) -> impl IntoResponse {
+    let Some(user) = authenticator.user else {
+        return (StatusCode::SEE_OTHER, [("HX-Location", "/")]).into_response();
+    };
     match (DashboardTemplate {
         token: &token,
         location: "Dashboard",
-        username: &match authenticator.user {
-            Some(user) => user.name,
-            None => {
-                return (StatusCode::FOUND, [("HX-Location", "/")])
-                    .into_response()
-            }
-        },
+        username: &user.name,
     })
     .render()
     {

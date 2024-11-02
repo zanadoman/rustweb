@@ -46,7 +46,9 @@ pub async fn register(
 ) -> impl IntoResponse {
     match UserModel::create(&state.database(), &form.name, &form.password).await
     {
-        Ok(..) => (StatusCode::FOUND, [("HX-Location", "/")]).into_response(),
+        Ok(..) => {
+            (StatusCode::SEE_OTHER, [("HX-Location", "/")]).into_response()
+        }
         Err(Error::Database(error)) => {
             warn!("{error}");
             (StatusCode::CONFLICT, error.to_string()).into_response()
@@ -63,21 +65,19 @@ pub async fn login(
     mut authenticator: AuthSession<AuthenticatorService>,
     Form(form): Form<UserModel>,
 ) -> impl IntoResponse {
-    match authenticator.authenticate(form).await {
-        Ok(Some(user)) => {
-            if let Err(error) = authenticator.login(&user).await {
-                error!("{error}");
-                StatusCode::INTERNAL_SERVER_ERROR.into_response()
-            } else {
-                (StatusCode::FOUND, [("HX-Location", "/dashboard")])
-                    .into_response()
-            }
-        }
-        Ok(None) => StatusCode::UNAUTHORIZED.into_response(),
+    let user = match authenticator.authenticate(form).await {
+        Ok(Some(user)) => user,
+        Ok(None) => return StatusCode::UNAUTHORIZED.into_response(),
         Err(error) => {
             error!("{error}");
-            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
+    };
+    if let Err(error) = authenticator.login(&user).await {
+        error!("{error}");
+        StatusCode::INTERNAL_SERVER_ERROR.into_response()
+    } else {
+        (StatusCode::SEE_OTHER, [("HX-Location", "/dashboard")]).into_response()
     }
 }
 
@@ -87,7 +87,8 @@ pub async fn logout(
 ) -> impl IntoResponse {
     if let Err(error) = authenticator.logout().await {
         error!("{error}");
-        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        StatusCode::INTERNAL_SERVER_ERROR.into_response()
+    } else {
+        (StatusCode::SEE_OTHER, [("HX-Location", "/")]).into_response()
     }
-    (StatusCode::FOUND, [("HX-Location", "/")]).into_response()
 }
