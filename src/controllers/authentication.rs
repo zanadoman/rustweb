@@ -42,20 +42,21 @@ pub async fn authentication(
     }
 }
 
-#[instrument(level = "debug")]
+#[instrument(level = "debug", skip(csrf))]
 pub async fn register(
     State(state): State<Arc<StateService>>,
+    csrf: CsrfToken,
     Form(user): Form<UserModel>,
 ) -> impl IntoResponse {
     if let Some(error) = UserModel::validate(state.database(), &user).await {
-        return (StatusCode::BAD_REQUEST, Json(error)).into_response();
+        return (StatusCode::BAD_REQUEST, csrf, Json(error)).into_response();
     }
     match UserModel::create(&state.database(), &user.name, &user.password).await
     {
-        Ok(..) => StatusCode::NO_CONTENT.into_response(),
+        Ok(..) => (StatusCode::NO_CONTENT, csrf).into_response(),
         Err(Error::Database(error)) => {
             warn!("{error}");
-            (StatusCode::CONFLICT, error.to_string()).into_response()
+            (StatusCode::CONFLICT, csrf, error.to_string()).into_response()
         }
         Err(error) => {
             error!("{error}");
@@ -64,14 +65,15 @@ pub async fn register(
     }
 }
 
-#[instrument(level = "debug", skip(authenticator))]
+#[instrument(level = "debug", skip(authenticator, csrf))]
 pub async fn login(
     mut authenticator: AuthSession<AuthenticatorService>,
+    csrf: CsrfToken,
     Form(user): Form<UserModel>,
 ) -> impl IntoResponse {
     let user = match authenticator.authenticate(user).await {
         Ok(Some(user)) => user,
-        Ok(None) => return StatusCode::UNAUTHORIZED.into_response(),
+        Ok(None) => return (StatusCode::UNAUTHORIZED, csrf).into_response(),
         Err(error) => {
             error!("{error}");
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
@@ -81,19 +83,21 @@ pub async fn login(
         error!("{error}");
         StatusCode::INTERNAL_SERVER_ERROR.into_response()
     } else {
-        (StatusCode::SEE_OTHER, [("HX-Location", "/dashboard")]).into_response()
+        (StatusCode::SEE_OTHER, csrf, [("HX-Location", "/dashboard")])
+            .into_response()
     }
 }
 
-#[instrument(level = "debug", skip(authenticator))]
+#[instrument(level = "debug", skip(authenticator, csrf))]
 pub async fn logout(
     mut authenticator: AuthSession<AuthenticatorService>,
+    csrf: CsrfToken,
 ) -> impl IntoResponse {
     if let Err(error) = authenticator.logout().await {
         error!("{error}");
         StatusCode::INTERNAL_SERVER_ERROR.into_response()
     } else {
-        (StatusCode::SEE_OTHER, [("HX-Location", "/")]).into_response()
+        (StatusCode::SEE_OTHER, csrf, [("HX-Location", "/")]).into_response()
     }
 }
 

@@ -22,7 +22,8 @@ pub async fn index(
     Extension(token): Extension<Arc<String>>,
 ) -> impl IntoResponse {
     let Some(user) = authenticator.user else {
-        return (StatusCode::SEE_OTHER, [("HX-Location", "/")]).into_response();
+        return (StatusCode::SEE_OTHER, csrf, [("HX-Location", "/")])
+            .into_response();
     };
     match (DashboardTemplate {
         token: &token,

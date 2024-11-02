@@ -36,7 +36,7 @@ pub async fn show(
     }
     let message = match MessageModel::find(&state.database(), id).await {
         Ok(Some(message)) => message,
-        Ok(None) => return StatusCode::NOT_FOUND.into_response(),
+        Ok(None) => return (StatusCode::NOT_FOUND, csrf).into_response(),
         Err(error) => {
             error!("{error}");
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
@@ -87,13 +87,14 @@ pub async fn index(
     }
 }
 
-#[instrument(level = "debug")]
+#[instrument(level = "debug", skip(csrf))]
 pub async fn create(
     State(state): State<Arc<StateService>>,
+    csrf: CsrfToken,
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
     if let Some(error) = MessageModel::validate(&message) {
-        return (StatusCode::BAD_REQUEST, Json(error)).into_response();
+        return (StatusCode::BAD_REQUEST, csrf, Json(error)).into_response();
     }
     let id = match MessageModel::create(
         &state.database(),
@@ -105,7 +106,8 @@ pub async fn create(
         Ok(query) => query.last_insert_id(),
         Err(sqlx::Error::Database(error)) => {
             warn!("{error}");
-            return (StatusCode::CONFLICT, error.to_string()).into_response();
+            return (StatusCode::CONFLICT, csrf, error.to_string())
+                .into_response();
         }
         Err(error) => {
             error!("{error}");
@@ -130,18 +132,19 @@ pub async fn create(
         error!("{error}");
         StatusCode::INTERNAL_SERVER_ERROR.into_response()
     } else {
-        StatusCode::NO_CONTENT.into_response()
+        (StatusCode::NO_CONTENT, csrf).into_response()
     }
 }
 
-#[instrument(level = "debug")]
+#[instrument(level = "debug", skip(csrf))]
 pub async fn update(
     Path(id): Path<i32>,
     State(state): State<Arc<StateService>>,
+    csrf: CsrfToken,
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
     if let Some(error) = MessageModel::validate(&message) {
-        return (StatusCode::BAD_REQUEST, Json(error)).into_response();
+        return (StatusCode::BAD_REQUEST, csrf, Json(error)).into_response();
     }
     match MessageModel::update(
         &state.database(),
@@ -153,7 +156,8 @@ pub async fn update(
     {
         Err(sqlx::Error::Database(error)) => {
             warn!("{error}");
-            return (StatusCode::CONFLICT, error.to_string()).into_response();
+            return (StatusCode::CONFLICT, csrf, error.to_string())
+                .into_response();
         }
         Err(error) => {
             error!("{error}");
@@ -174,19 +178,21 @@ pub async fn update(
         error!("{error}");
         StatusCode::INTERNAL_SERVER_ERROR.into_response()
     } else {
-        StatusCode::NO_CONTENT.into_response()
+        (StatusCode::NO_CONTENT, csrf).into_response()
     }
 }
 
-#[instrument(level = "debug")]
+#[instrument(level = "debug", skip(csrf))]
 pub async fn destroy(
     Path(id): Path<i32>,
     State(state): State<Arc<StateService>>,
+    csrf: CsrfToken,
 ) -> impl IntoResponse {
     match MessageModel::delete(&state.database(), id).await {
         Err(sqlx::Error::Database(error)) => {
             warn!("{error}");
-            return (StatusCode::CONFLICT, error.to_string()).into_response();
+            return (StatusCode::CONFLICT, csrf, error.to_string())
+                .into_response();
         }
         Err(error) => {
             error!("{error}");
@@ -203,7 +209,7 @@ pub async fn destroy(
         error!("{error}");
         StatusCode::INTERNAL_SERVER_ERROR.into_response()
     } else {
-        StatusCode::NO_CONTENT.into_response()
+        (StatusCode::NO_CONTENT, csrf).into_response()
     }
 }
 
