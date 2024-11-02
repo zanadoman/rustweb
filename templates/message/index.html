@@ -1,0 +1,6 @@
+<h2 class="mb-5 fw-bold text-center">MESSAGES</h2>
+<div sse-swap="create" hx-swap="afterbegin">
+    {% for message in messages %}
+    {% include "./message/event.html" %}
+    {% endfor %}
+</div>

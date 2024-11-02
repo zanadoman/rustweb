@@ -14,7 +14,9 @@ use axum_csrf::CsrfToken;
 use tokio_stream::{wrappers::BroadcastStream, Stream, StreamExt};
 use tracing::{error, instrument, warn};
 
-use crate::templates::message::MessageTemplate;
+use crate::templates::message::{
+    MessageEventTemplate, MessageIndexTemplate, MessageShowTemplate,
+};
 use crate::{models::message::MessageModel, services::state::StateService};
 
 #[instrument(level = "debug", skip(csrf))]
@@ -36,13 +38,13 @@ pub async fn show(
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
     };
-    match (MessageTemplate {
+    match (MessageShowTemplate {
         token: &token,
         message: &message,
     })
     .render()
     {
-        Ok(message) => (StatusCode::OK, csrf, Html(message)).into_response(),
+        Ok(show) => (StatusCode::OK, csrf, Html(show)).into_response(),
         Err(error) => {
             error!("{error}");
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
@@ -60,28 +62,25 @@ pub async fn index(
     if headers.get("Hx-Request").is_none() {
         return Redirect::to("/dashboard").into_response();
     }
-    let mut messages = String::default();
-    for message in match MessageModel::all(&state.database()).await {
+    let messages = match MessageModel::all(state.database()).await {
         Ok(messages) => messages,
         Err(error) => {
             error!("{error}");
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
-    } {
-        match (MessageTemplate {
-            token: &token,
-            message: &message,
-        })
-        .render()
-        {
-            Ok(message) => messages.push_str(&message),
-            Err(error) => {
-                error!("{error}");
-                return StatusCode::INTERNAL_SERVER_ERROR.into_response();
-            }
+    };
+    match (MessageIndexTemplate {
+        token: &token,
+        messages: &messages,
+    })
+    .render()
+    {
+        Ok(index) => (StatusCode::OK, csrf, Html(index)).into_response(),
+        Err(error) => {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
         }
     }
-    (StatusCode::OK, csrf, Html(messages)).into_response()
 }
 
 #[instrument(level = "debug")]
@@ -114,9 +113,7 @@ pub async fn create(
         }
     };
     if let Err(error) = state.messages().send((
-        Event::default()
-            .id(state.id().to_string())
-            .event("messages"),
+        Event::default().id(state.id().to_string()).event("create"),
         Some(MessageModel {
             id: Some(id),
             title: message.title,
@@ -157,7 +154,7 @@ pub async fn update(
     if let Err(error) = state.messages().send((
         Event::default()
             .id(state.id().to_string())
-            .event(format!("message{id}")),
+            .event(format!("update{id}")),
         Some(MessageModel {
             id: Some(id),
             title: message.title,
@@ -190,7 +187,7 @@ pub async fn destroy(
     if let Err(error) = state.messages().send((
         Event::default()
             .id(state.id().to_string())
-            .event(format!("message{id}")),
+            .event(format!("destroy{id}")),
         None,
     )) {
         error!("{error}");
@@ -208,13 +205,13 @@ pub async fn events(
         move |event| match event {
             Ok((event, message)) => {
                 Ok(event.data(if let Some(message) = message {
-                    match (MessageTemplate {
+                    match (MessageEventTemplate {
                         token: &token,
                         message: &message,
                     })
                     .render()
                     {
-                        Ok(message) => message,
+                        Ok(event) => event,
                         Err(error) => {
                             error!("{error}");
                             return Err(

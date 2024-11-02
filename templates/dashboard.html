@@ -1,4 +1,4 @@
-{% extends "base/base.html" %}
+{% extends "./base/base.html" %}
 {% block content %}
 
 <div class="row mb-5">
@@ -22,8 +22,8 @@
             <button class="btn btn-danger w-100 mb-5" type="reset">Clear</button>
         </form>
     </div>
-    <div class="col-12 col-lg-5 mt-1 mt-md-5 mt-lg-0 p-5 bg-body-secondary rounded-3 shadow" sse-connect="/messages/events">
-        <div hx-get="/messages" hx-trigger="load" sse-swap="messages" hx-swap="afterbegin"></div>
+    <div id="messages" class="col-12 col-lg-5 mt-1 mt-md-5 mt-lg-0 p-5 bg-body-secondary rounded-3 shadow" sse-connect="/messages/events">
+        {% include "./message/index.html" %}
     </div>
 </div>
 
