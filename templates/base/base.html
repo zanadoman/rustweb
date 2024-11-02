@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <script src="/assets/js/htmx.min.js"></script>
+    <script src="/assets/js/htmx.sse.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+</head>
+
+<body class="d-flex flex-column min-vh-100" hx-ext="sse">
+    {% include "./base/nav.html" %}
+    <main class="container-md flex-grow-1 my-1 my-md-5">
+        {% block content %}{% endblock content %}
+    </main>
+    {% include "./base/footer.html" %}
+</body>
+
+</html>

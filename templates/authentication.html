@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "base/base.html" %}
 {% block content %}
 
 <form hx-post="/register" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
