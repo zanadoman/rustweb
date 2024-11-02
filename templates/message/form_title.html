@@ -1,6 +1,6 @@
 <div class="form-floating mb-3" hx-target="this" hx-swap="outerHTML">
-    <input id="messages-form-title" class="form-control {% if error.is_some() %} is-invalid {% else %} is-valid {% endif %}" type="text" name="title" placeholder="Title" value="{{ value }}" hx-post="/messages/validate/title" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
-    <label for="messages-form-title">Title</label>
+    <input id="message{{ id }}-form-title" class="form-control {% if error.is_some() %} is-invalid {% else %} is-valid {% endif %}" type="text" name="title" placeholder="Title" value="{{ value }}" hx-post="/message/{{ id }}/validate/title" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
+    <label for="message{{ id }}-form-title">Title</label>
     {% if let Some(error) = error %}
     <div class="invalid-feedback">
         <p class="text-center">{{ error }}</p>

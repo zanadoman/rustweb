@@ -244,12 +244,14 @@ pub async fn events(
 
 #[instrument(level = "debug", skip(csrf))]
 pub async fn validate_title(
+    Path(id): Path<i32>,
     csrf: CsrfToken,
     Extension(token): Extension<Arc<String>>,
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
     match (MessageFormTitleTemplate {
         token: &token,
+        id,
         value: &message.title,
         error: MessageModel::validate_title(&message.title).as_deref(),
     })
@@ -267,12 +269,14 @@ pub async fn validate_title(
 
 #[instrument(level = "debug", skip(csrf))]
 pub async fn validate_content(
+    Path(id): Path<i32>,
     csrf: CsrfToken,
     Extension(token): Extension<Arc<String>>,
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
     match (MessageFormContentTemplate {
         token: &token,
+        id,
         value: &message.content,
         error: MessageModel::validate_content(&message.content).as_deref(),
     })

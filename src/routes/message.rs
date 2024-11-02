@@ -20,6 +20,6 @@ pub fn routes() -> Router<Arc<StateService>> {
         .route("/messages", get(index).post(create))
         .route("/message/:id", get(show).put(update).delete(destroy))
         .route("/messages/events", get(events))
-        .route("/messages/validate/title", post(validate_title))
-        .route("/messages/validate/content", post(validate_content))
+        .route("/message/:id/validate/title", post(validate_title))
+        .route("/message/:id/validate/content", post(validate_content))
 }

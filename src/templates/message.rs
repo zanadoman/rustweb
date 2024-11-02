@@ -27,6 +27,7 @@ pub struct MessageEventTemplate<'a> {
 #[template(path = "./message/form_title.html")]
 pub struct MessageFormTitleTemplate<'a> {
     pub token: &'a str,
+    pub id: i32,
     pub value: &'a str,
     pub error: Option<&'a str>,
 }
@@ -35,6 +36,7 @@ pub struct MessageFormTitleTemplate<'a> {
 #[template(path = "./message/form_content.html")]
 pub struct MessageFormContentTemplate<'a> {
     pub token: &'a str,
+    pub id: i32,
     pub value: &'a str,
     pub error: Option<&'a str>,
 }
