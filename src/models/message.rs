@@ -100,7 +100,7 @@ impl MessageModel {
         }
     }
 
-    pub fn validate(message: &MessageModel) -> Option<MessageModelError> {
+    pub fn validate(message: &Self) -> Option<MessageModelError> {
         let title = Self::validate_title(&message.title);
         let content = Self::validate_content(&message.content);
         if title.is_some() || content.is_some() {

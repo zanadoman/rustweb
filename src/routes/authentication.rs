@@ -7,7 +7,10 @@ use axum::{
 use tracing::instrument;
 
 use crate::{
-    controllers::authentication::{authentication, login, logout, register},
+    controllers::authentication::{
+        authentication, login, logout, register, validate_name,
+        validate_password,
+    },
     services::state::StateService,
 };
 
@@ -18,4 +21,6 @@ pub fn routes() -> Router<Arc<StateService>> {
         .route("/register", post(register))
         .route("/login", post(login))
         .route("/logout", post(logout))
+        .route("/register/validate/name", post(validate_name))
+        .route("/register/validate/password", post(validate_password))
 }

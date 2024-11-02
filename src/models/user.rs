@@ -9,12 +9,18 @@ use serde::{Deserialize, Serialize};
 use sqlx::{
     mysql::MySqlQueryResult, query, query_as, Error, FromRow, MySqlPool,
 };
-use tracing::instrument;
+use tracing::{error, instrument};
 
 #[derive(Clone, Deserialize, FromRow, Serialize)]
 pub struct UserModel {
     pub name: String,
     pub password: String,
+}
+
+#[derive(Serialize)]
+pub struct UserModelError {
+    pub name: Option<String>,
+    pub password: Option<String>,
 }
 
 impl Debug for UserModel {
@@ -63,5 +69,55 @@ impl UserModel {
         )
         .execute(database)
         .await
+    }
+
+    pub async fn validate_name(
+        database: &MySqlPool,
+        name: &str,
+    ) -> Option<String> {
+        if name.len() == 0 {
+            return Some("Name must be at least 1 character long.".to_string());
+        }
+        if 100 < name.len() {
+            return Some(
+                "Name must not be more than 50 characters long.".to_string(),
+            );
+        }
+        match query_as!(
+            Self,
+            "SELECT * FROM users WHERE name = ? LIMIT 1",
+            name
+        )
+        .fetch_optional(database)
+        .await
+        {
+            Ok(Some(..)) => Some("Name already taken.".to_string()),
+            Ok(None) => None,
+            Err(error) => {
+                error!("{error}");
+                Some("Internal server error.".to_string())
+            }
+        }
+    }
+
+    pub fn validate_password(password: &str) -> Option<String> {
+        if password.len() < 8 {
+            Some("Password must be at least 8 characters long.".to_string())
+        } else {
+            None
+        }
+    }
+
+    pub async fn validate(
+        database: &MySqlPool,
+        user: &Self,
+    ) -> Option<UserModelError> {
+        let name = Self::validate_name(database, &user.name).await;
+        let password = Self::validate_password(&user.password);
+        if name.is_some() || password.is_some() {
+            Some(UserModelError { name, password })
+        } else {
+            None
+        }
     }
 }
