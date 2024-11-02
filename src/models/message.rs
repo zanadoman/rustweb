@@ -1,11 +1,10 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{
-    mysql::MySqlQueryResult, prelude::FromRow, query, query_as, Error,
-    MySqlPool,
+    mysql::MySqlQueryResult, query, query_as, Error, FromRow, MySqlPool,
 };
 use tracing::instrument;
 
-#[derive(Clone, Debug, Deserialize, Serialize, FromRow)]
+#[derive(Clone, Debug, Deserialize, FromRow, Serialize)]
 pub struct MessageModel {
     pub id: Option<i32>,
     pub title: String,
@@ -33,8 +32,8 @@ impl MessageModel {
     #[instrument(level = "trace")]
     pub async fn create(
         database: &MySqlPool,
-        title: &String,
-        content: &String,
+        title: &str,
+        content: &str,
     ) -> Result<MySqlQueryResult, Error> {
         query!(
             "INSERT INTO messages (title, content) VALUES (?, ?)",
@@ -49,14 +48,14 @@ impl MessageModel {
     pub async fn update(
         database: &MySqlPool,
         id: i32,
-        title: &String,
-        content: &String,
+        title: &str,
+        content: &str,
     ) -> Result<MySqlQueryResult, Error> {
         query!(
             "UPDATE messages SET title = ?, content = ? WHERE id = ?",
             title,
             content,
-            id,
+            id
         )
         .execute(database)
         .await

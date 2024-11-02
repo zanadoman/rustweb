@@ -7,12 +7,11 @@ use axum_login::AuthUser;
 use password_auth::generate_hash;
 use serde::{Deserialize, Serialize};
 use sqlx::{
-    mysql::MySqlQueryResult, prelude::FromRow, query, query_as, Error,
-    MySqlPool,
+    mysql::MySqlQueryResult, query, query_as, Error, FromRow, MySqlPool,
 };
 use tracing::instrument;
 
-#[derive(Clone, Deserialize, Serialize, FromRow)]
+#[derive(Clone, Deserialize, FromRow, Serialize)]
 pub struct UserModel {
     pub name: String,
     pub password: String,
@@ -44,7 +43,7 @@ impl UserModel {
     #[instrument(level = "trace")]
     pub async fn find(
         database: &MySqlPool,
-        name: &String,
+        name: &str,
     ) -> Result<Option<Self>, Error> {
         query_as!(Self, "SELECT * FROM users WHERE name = ? LIMIT 1", name)
             .fetch_optional(database)
@@ -54,8 +53,8 @@ impl UserModel {
     #[instrument(level = "trace")]
     pub async fn create(
         database: &MySqlPool,
-        name: &String,
-        password: &String,
+        name: &str,
+        password: &str,
     ) -> Result<MySqlQueryResult, Error> {
         query!(
             "INSERT INTO users VALUES (?, ?)",

@@ -11,8 +11,7 @@ use axum_csrf::{CsrfConfig, CsrfLayer};
 use dotenvy::dotenv;
 use routes::routes;
 use services::{
-    authenticator::AuthenticatorService,
-    csrf::{csrf_provider, csrf_verifier},
+    authenticator::AuthenticatorService, csrf::csrf_service,
     state::StateService,
 };
 use tokio::{main, net::TcpListener, signal::ctrl_c};
@@ -40,8 +39,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     serve(
         listener,
         routes()
-            .layer(from_fn(csrf_verifier))
-            .layer(from_fn(csrf_provider))
+            .layer(from_fn(csrf_service))
             .layer(CsrfLayer::new(CsrfConfig::default()))
             .layer(AuthenticatorService::new(state.database().clone()).await?)
             .layer(TraceLayer::new_for_http().make_span_with(

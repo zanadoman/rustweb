@@ -1,5 +1,5 @@
 {% if let Some(id) = message.id %}
-<div sse-swap="message{{ id }}">
+<div sse-swap="message{{ id }}" hx-swap="outerHTML">
     <p>{{ message.title }} {{ message.content }}</p>
     <form hx-put="/message/{{ id }}" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
         <label for="message{{ id }}-form-title">Title</label>

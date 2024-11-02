@@ -1,7 +1,7 @@
 {% extends "index.html" %}
 {% block content %}
 
-<form hx-post="/register" hx-target="body" hx-swap="outerHTML" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
+<form hx-post="/register" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
     <label for="register-form-name">Name</label>
     <input id="register-form-name" type="text" name="name" autocomplete="username">
     <label for="register-form-password">Password</label>
@@ -9,7 +9,7 @@
     <button type="submit">Register</button>
 </form>
 
-<form hx-post="/login" hx-target="body" hx-swap="outerHTML" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
+<form hx-post="/login" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
     <label for="login-form-name">Name</label>
     <input id="login-form-name" type="text" name="name" autocomplete="username">
     <label for="login-form-password">Password</label>

@@ -13,7 +13,6 @@
     <button type="submit">Send</button>
 </form>
 
-<button hx-post="/logout" hx-target="body" hx-swap="outerHTML"
-    hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Logout</button>
+<button hx-post="/logout" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Logout</button>
 
 {% endblock content %}
