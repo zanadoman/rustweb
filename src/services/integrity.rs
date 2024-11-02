@@ -11,7 +11,7 @@ use axum_csrf::CsrfToken;
 use tracing::{error, instrument, warn};
 
 #[instrument(level = "trace")]
-pub async fn csrf_service(
+pub async fn integrity_service(
     mut request: Request<Body>,
     next: Next,
 ) -> Result<Response, impl IntoResponse> {

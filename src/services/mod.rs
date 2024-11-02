@@ -1,3 +1,3 @@
 pub mod authenticator;
-pub mod csrf;
+pub mod integrity;
 pub mod state;
