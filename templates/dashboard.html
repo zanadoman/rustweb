@@ -10,12 +10,12 @@
         <h2 class="mb-5 fw-bold text-center">NEW MESSAGE</h2>
         <p class="mb-4 text-muted text-center">Please enter a title and content!</p>
         <form hx-post="/messages" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
-            <div class="form-floating mb-3">
-                <input id="messages-form-title" class="form-control border-0" type="text" name="title" placeholder="Title">
+            <div class="form-floating mb-3" hx-target="this" hx-swap="outerHTML">
+                <input id="messages-form-title" class="form-control border-0" type="text" name="title" placeholder="Title" hx-post="/messages/validate/title" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
                 <label for="messages-form-title">Title</label>
             </div>
-            <div class="form-floating mb-3">
-                <textarea id="messages-form-content" class="form-control border-0" name="content" placeholder="Content"></textarea>
+            <div class="form-floating mb-3" hx-target="this" hx-swap="outerHTML">
+                <textarea id="messages-form-content" class="form-control border-0" name="content" placeholder="Content" hx-post="/messages/validate/content" hx-headers='{"X-CSRF-Token": "{{ token }}"}'></textarea>
                 <label for="messages-form-content">Content</label>
             </div>
             <button class="btn btn-primary w-100 mb-3" type="submit">Send</button>

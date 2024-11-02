@@ -11,6 +11,12 @@ pub struct MessageModel {
     pub content: String,
 }
 
+#[derive(Serialize)]
+pub struct MessageModelError {
+    pub title: Option<String>,
+    pub content: Option<String>,
+}
+
 impl MessageModel {
     #[instrument(level = "trace")]
     pub async fn find(
@@ -69,5 +75,38 @@ impl MessageModel {
         query!("DELETE FROM messages WHERE id = ?", id)
             .execute(database)
             .await
+    }
+
+    pub fn validate_title(title: &str) -> Option<String> {
+        if title.len() == 0 {
+            Some("Title must be at least 1 character long.".to_string())
+        } else if 100 < title.len() {
+            Some("Title must not be more than 100 characters long.".to_string())
+        } else {
+            None
+        }
+    }
+
+    pub fn validate_content(content: &str) -> Option<String> {
+        if content.len() == 0 {
+            Some("Content must be at least 1 character long.".to_string())
+        } else if 100 < content.len() {
+            Some(
+                "Content must not be more than 1000 characters long."
+                    .to_string(),
+            )
+        } else {
+            None
+        }
+    }
+
+    pub fn validate(message: &MessageModel) -> Option<MessageModelError> {
+        let title = Self::validate_title(&message.title);
+        let content = Self::validate_content(&message.content);
+        if title.is_some() || content.is_some() {
+            Some(MessageModelError { title, content })
+        } else {
+            None
+        }
     }
 }

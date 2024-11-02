@@ -8,16 +8,20 @@ use axum::{
         sse::{Event, KeepAlive, Sse},
         Html, IntoResponse, Redirect,
     },
-    Extension, Form,
+    Extension, Form, Json,
 };
 use axum_csrf::CsrfToken;
 use tokio_stream::{wrappers::BroadcastStream, Stream, StreamExt};
 use tracing::{error, instrument, warn};
 
-use crate::templates::message::{
-    MessageEventTemplate, MessageIndexTemplate, MessageShowTemplate,
+use crate::{
+    models::message::MessageModel,
+    services::state::StateService,
+    templates::message::{
+        MessageEventTemplate, MessageFormContentTemplate,
+        MessageFormTitleTemplate, MessageIndexTemplate, MessageShowTemplate,
+    },
 };
-use crate::{models::message::MessageModel, services::state::StateService};
 
 #[instrument(level = "debug", skip(csrf))]
 pub async fn show(
@@ -88,6 +92,9 @@ pub async fn create(
     State(state): State<Arc<StateService>>,
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
+    if let Some(error) = MessageModel::validate(&message) {
+        return (StatusCode::BAD_REQUEST, Json(error)).into_response();
+    }
     let id = match MessageModel::create(
         &state.database(),
         &message.title,
@@ -133,6 +140,9 @@ pub async fn update(
     State(state): State<Arc<StateService>>,
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
+    if let Some(error) = MessageModel::validate(&message) {
+        return (StatusCode::BAD_REQUEST, Json(error)).into_response();
+    }
     match MessageModel::update(
         &state.database(),
         id,
@@ -230,4 +240,50 @@ pub async fn events(
         },
     ))
     .keep_alive(KeepAlive::default())
+}
+
+#[instrument(level = "debug", skip(csrf))]
+pub async fn validate_title(
+    csrf: CsrfToken,
+    Extension(token): Extension<Arc<String>>,
+    Form(message): Form<MessageModel>,
+) -> impl IntoResponse {
+    match (MessageFormTitleTemplate {
+        token: &token,
+        value: &message.title,
+        error: MessageModel::validate_title(&message.title).as_deref(),
+    })
+    .render()
+    {
+        Ok(form_title) => {
+            (StatusCode::OK, csrf, Html(form_title)).into_response()
+        }
+        Err(error) => {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
+}
+
+#[instrument(level = "debug", skip(csrf))]
+pub async fn validate_content(
+    csrf: CsrfToken,
+    Extension(token): Extension<Arc<String>>,
+    Form(message): Form<MessageModel>,
+) -> impl IntoResponse {
+    match (MessageFormContentTemplate {
+        token: &token,
+        value: &message.content,
+        error: MessageModel::validate_content(&message.content).as_deref(),
+    })
+    .render()
+    {
+        Ok(form_content) => {
+            (StatusCode::OK, csrf, Html(form_content)).into_response()
+        }
+        Err(error) => {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
 }
