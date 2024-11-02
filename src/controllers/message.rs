@@ -28,16 +28,17 @@ pub async fn show(
     if headers.get("Hx-Request").is_none() {
         return Redirect::to("/dashboard").into_response();
     }
+    let message = match MessageModel::find(&state.database(), id).await {
+        Ok(Some(message)) => message,
+        Ok(None) => return StatusCode::NOT_FOUND.into_response(),
+        Err(error) => {
+            error!("{error}");
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        }
+    };
     match (MessageTemplate {
         token: &token,
-        message: &match MessageModel::find(&state.database(), id).await {
-            Ok(Some(message)) => message,
-            Ok(None) => return StatusCode::RESET_CONTENT.into_response(),
-            Err(error) => {
-                error!("{error}");
-                return StatusCode::INTERNAL_SERVER_ERROR.into_response();
-            }
-        },
+        message: &message,
     })
     .render()
     {
@@ -88,46 +89,44 @@ pub async fn create(
     State(state): State<Arc<StateService>>,
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
-    match MessageModel::create(
+    let id = match MessageModel::create(
         &state.database(),
         &message.title,
         &message.content,
     )
     .await
     {
-        Ok(result) => {
-            if let Err(error) = state.messages().send((
-                Event::default()
-                    .id(state.id().to_string())
-                    .event("messages"),
-                Some(MessageModel {
-                    id: Some(match result.last_insert_id().try_into() {
-                        Ok(id) => id,
-                        Err(error) => {
-                            error!("{error}");
-                            return StatusCode::INTERNAL_SERVER_ERROR
-                                .into_response();
-                        }
-                    }),
-                    title: message.title,
-                    content: message.content,
-                }),
-            )) {
-                error!("{error}");
-                StatusCode::INTERNAL_SERVER_ERROR.into_response()
-            } else {
-                StatusCode::NO_CONTENT.into_response()
-            }
-        }
-        .into_response(),
+        Ok(query) => query.last_insert_id(),
         Err(sqlx::Error::Database(error)) => {
             warn!("{error}");
-            (StatusCode::CONFLICT, error.to_string()).into_response()
+            return (StatusCode::CONFLICT, error.to_string()).into_response();
         }
         Err(error) => {
             error!("{error}");
-            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
+    };
+    let id = match i32::try_from(id) {
+        Ok(id) => id,
+        Err(error) => {
+            error!("{error}");
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        }
+    };
+    if let Err(error) = state.messages().send((
+        Event::default()
+            .id(state.id().to_string())
+            .event("messages"),
+        Some(MessageModel {
+            id: Some(id),
+            title: message.title,
+            content: message.content,
+        }),
+    )) {
+        error!("{error}");
+        StatusCode::INTERNAL_SERVER_ERROR.into_response()
+    } else {
+        StatusCode::NO_CONTENT.into_response()
     }
 }
 
@@ -145,31 +144,30 @@ pub async fn update(
     )
     .await
     {
-        Ok(..) => {
-            if let Err(error) = state.messages().send((
-                Event::default()
-                    .id(state.id().to_string())
-                    .event(format!("message{id}")),
-                Some(MessageModel {
-                    id: Some(id),
-                    title: message.title,
-                    content: message.content,
-                }),
-            )) {
-                error!("{error}");
-                StatusCode::INTERNAL_SERVER_ERROR.into_response()
-            } else {
-                StatusCode::NO_CONTENT.into_response()
-            }
-        }
         Err(sqlx::Error::Database(error)) => {
             warn!("{error}");
-            (StatusCode::CONFLICT, error.to_string()).into_response()
+            return (StatusCode::CONFLICT, error.to_string()).into_response();
         }
         Err(error) => {
             error!("{error}");
-            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
+        _ => (),
+    }
+    if let Err(error) = state.messages().send((
+        Event::default()
+            .id(state.id().to_string())
+            .event(format!("message{id}")),
+        Some(MessageModel {
+            id: Some(id),
+            title: message.title,
+            content: message.content,
+        }),
+    )) {
+        error!("{error}");
+        StatusCode::INTERNAL_SERVER_ERROR.into_response()
+    } else {
+        StatusCode::NO_CONTENT.into_response()
     }
 }
 
@@ -179,27 +177,26 @@ pub async fn destroy(
     State(state): State<Arc<StateService>>,
 ) -> impl IntoResponse {
     match MessageModel::delete(&state.database(), id).await {
-        Ok(..) => {
-            if let Err(error) = state.messages().send((
-                Event::default()
-                    .id(state.id().to_string())
-                    .event(format!("message{id}")),
-                None,
-            )) {
-                error!("{error}");
-                StatusCode::INTERNAL_SERVER_ERROR.into_response()
-            } else {
-                StatusCode::NO_CONTENT.into_response()
-            }
-        }
         Err(sqlx::Error::Database(error)) => {
             warn!("{error}");
-            (StatusCode::CONFLICT, error.to_string()).into_response()
+            return (StatusCode::CONFLICT, error.to_string()).into_response();
         }
         Err(error) => {
             error!("{error}");
-            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
+        _ => (),
+    };
+    if let Err(error) = state.messages().send((
+        Event::default()
+            .id(state.id().to_string())
+            .event(format!("message{id}")),
+        None,
+    )) {
+        error!("{error}");
+        StatusCode::INTERNAL_SERVER_ERROR.into_response()
+    } else {
+        StatusCode::NO_CONTENT.into_response()
     }
 }
 
