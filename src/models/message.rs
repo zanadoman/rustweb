@@ -24,7 +24,7 @@ impl MessageModel {
 
     #[instrument(level = "trace")]
     pub async fn all(database: &MySqlPool) -> Result<Vec<Self>, Error> {
-        query_as!(Self, "SELECT * FROM messages")
+        query_as!(Self, "SELECT * FROM messages ORDER BY id DESC")
             .fetch_all(database)
             .await
     }

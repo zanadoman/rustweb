@@ -3,7 +3,7 @@
 
 <p>{{ username }}</p>
 
-<div sse-connect="/messages/events" hx-get="/messages" hx-trigger="load" sse-swap="messages" hx-swap="beforeend"></div>
+<div sse-connect="/messages/events" hx-get="/messages" hx-trigger="load" sse-swap="messages" hx-swap="afterbegin"></div>
 
 <form hx-post="/messages" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
     <label for="messages-form-title">Title</label>
