@@ -28,7 +28,7 @@ pub async fn index(
     match (DashboardTemplate {
         token: &token,
         location: "Dashboard",
-        username: &user.name,
+        name: Some(&user.name),
     })
     .render()
     {

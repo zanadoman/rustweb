@@ -5,6 +5,7 @@ use askama::Template;
 pub struct AuthenticationTemplate<'a> {
     pub token: &'a str,
     pub location: &'a str,
+    pub name: Option<&'a str>,
 }
 
 #[derive(Template)]

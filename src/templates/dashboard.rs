@@ -5,5 +5,5 @@ use askama::Template;
 pub struct DashboardTemplate<'a> {
     pub token: &'a str,
     pub location: &'a str,
-    pub username: &'a str,
+    pub name: Option<&'a str>,
 }

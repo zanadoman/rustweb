@@ -1,5 +1,11 @@
 <nav id="nav" class="navbar mb-1 mb-md-5 bg-body-secondary shadow">
     <div class="container-fluid">
         <a class="navbar-brand">{{ location }}</a>
+        {% if let Some(name) = name %}
+        <div class="d-flex align-items-center">
+            <span class="navbar-text me-2">{{ name }}</span>
+            <button class="btn btn-sm btn-primary" type="button" hx-post="/logout" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Logout</button>
+        </div>
+        {% endif %}
     </div>
 </nav>

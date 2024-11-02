@@ -29,6 +29,7 @@ pub async fn authentication(
     match (AuthenticationTemplate {
         token: &token,
         location: "Authentication",
+        name: None,
     })
     .render()
     {
