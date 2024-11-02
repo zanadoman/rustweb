@@ -1,0 +1,16 @@
+<form hx-post="/login" hx-swap="outerHTML" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
+    <div class="form-floating mb-3">
+        <input id="login-form-name" class="form-control {% if error %} is-invalid {% else %} border-0 {% endif %}" type="text" name="name" placeholder="Name" autocomplete="username">
+        <label for="login-form-name">Name</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input id="login-form-password" class="form-control {% if error %} is-invalid {% else %} border-0 {% endif %}" type="password" name="password" placeholder="Password">
+        <label for="login-form-password">Password</label>
+        {% if error %}
+        <div class="invalid-feedback">
+            <p class="text-center">Invalid credentials.</p>
+        </div>
+        {% endif %}
+    </div>
+    <button class="btn btn-primary w-100 mb-5" type="submit">Login</button>
+</form>

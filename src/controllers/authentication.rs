@@ -17,7 +17,7 @@ use crate::{
     services::{authenticator::AuthenticatorService, state::StateService},
     templates::authentication::{
         AuthenticationFormNameTemplate, AuthenticationFormPasswordTemplate,
-        AuthenticationTemplate,
+        AuthenticationLoginTemplate, AuthenticationTemplate,
     },
 };
 
@@ -69,22 +69,37 @@ pub async fn register(
 pub async fn login(
     mut authenticator: AuthSession<AuthenticatorService>,
     csrf: CsrfToken,
+    Extension(token): Extension<Arc<String>>,
     Form(user): Form<UserModel>,
 ) -> impl IntoResponse {
     let user = match authenticator.authenticate(user).await {
-        Ok(Some(user)) => user,
-        Ok(None) => return (StatusCode::UNAUTHORIZED, csrf).into_response(),
+        Ok(user) => user,
         Err(error) => {
             error!("{error}");
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
     };
-    if let Err(error) = authenticator.login(&user).await {
-        error!("{error}");
-        StatusCode::INTERNAL_SERVER_ERROR.into_response()
+    if let Some(user) = user {
+        if let Err(error) = authenticator.login(&user).await {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        } else {
+            (StatusCode::SEE_OTHER, csrf, [("HX-Location", "/dashboard")])
+                .into_response()
+        }
     } else {
-        (StatusCode::SEE_OTHER, csrf, [("HX-Location", "/dashboard")])
-            .into_response()
+        match (AuthenticationLoginTemplate {
+            token: &token,
+            error: true,
+        })
+        .render()
+        {
+            Ok(login) => (StatusCode::OK, csrf, Html(login)).into_response(),
+            Err(error) => {
+                error!("{error}");
+                StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            }
+        }
     }
 }
 
@@ -136,7 +151,6 @@ pub async fn validate_password(
 ) -> impl IntoResponse {
     match (AuthenticationFormPasswordTemplate {
         token: &token,
-        value: &user.password,
         error: UserModel::validate_password(&user.password).as_deref(),
     })
     .render()
