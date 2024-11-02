@@ -1,18 +1,36 @@
 {% extends "base/base.html" %}
 {% block content %}
 
-<p>{{ username }}</p>
+<div class="row mb-5">
+    <h1 class="fw-bold text-center">Welcome {{ username }}!</h1>
+</div>
 
-<div sse-connect="/messages/events" hx-get="/messages" hx-trigger="load" sse-swap="messages" hx-swap="afterbegin"></div>
+<div class="row mb-5 justify-content-around">
+    <div class="col-12 col-lg-5 mb-1 mb-md-5 mb-lg-0 p-5 bg-body-secondary rounded-3 shadow">
+        <h2 class="mb-5 fw-bold text-center">NEW MESSAGE</h2>
+        <p class="mb-4 text-muted text-center">Please enter a title and content!</p>
+        <form hx-post="/messages" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
+            <div class="form-floating mb-3">
+                <input id="messages-form-title" class="form-control border-0" type="text" name="title" placeholder="Title">
+                <label for="messages-form-title">Title</label>
+            </div>
+            <div class="form-floating mb-3">
+                <textarea id="messages-form-content" class="form-control border-0" name="content" placeholder="Content"></textarea>
+                <label for="messages-form-content">Content</label>
+            </div>
+            <button class="btn btn-primary w-100 mb-3" type="submit">Send</button>
+            <button class="btn btn-danger w-100 mb-5" type="reset">Clear</button>
+        </form>
+    </div>
+    <div class="col-12 col-lg-5 mt-1 mt-md-5 mt-lg-0 p-5 bg-body-secondary rounded-3 shadow" sse-connect="/messages/events">
+        <div hx-get="/messages" hx-trigger="load" sse-swap="messages" hx-swap="afterbegin"></div>
+    </div>
+</div>
 
-<form hx-post="/messages" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
-    <label for="messages-form-title">Title</label>
-    <input id="messages-form-title" type="text" name="title">
-    <label for="messages-form-content">Content</label>
-    <input id="messages-form-content" type="text" name="content">
-    <button type="submit">Send</button>
-</form>
-
-<button hx-post="/logout" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Logout</button>
+<div class="row justify-content-center">
+    <div class="col-10 col-md-2">
+        <button class="btn btn-primary w-100" type="button" hx-post="/logout" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Logout</button>
+    </div>
+</div>
 
 {% endblock content %}
