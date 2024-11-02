@@ -77,6 +77,7 @@ impl MessageModel {
             .await
     }
 
+    #[instrument(level = "trace")]
     pub fn validate_title(title: &str) -> Option<String> {
         if title.len() == 0 {
             Some("Title must be at least 1 character long.".to_string())
@@ -87,6 +88,7 @@ impl MessageModel {
         }
     }
 
+    #[instrument(level = "trace")]
     pub fn validate_content(content: &str) -> Option<String> {
         if content.len() == 0 {
             Some("Content must be at least 1 character long.".to_string())
@@ -100,6 +102,7 @@ impl MessageModel {
         }
     }
 
+    #[instrument(level = "trace")]
     pub fn validate(message: &Self) -> Option<MessageModelError> {
         let title = Self::validate_title(&message.title);
         let content = Self::validate_content(&message.content);

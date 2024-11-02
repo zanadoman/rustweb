@@ -71,6 +71,7 @@ impl UserModel {
         .await
     }
 
+    #[instrument(level = "trace")]
     pub async fn validate_name(
         database: &MySqlPool,
         name: &str,
@@ -100,6 +101,7 @@ impl UserModel {
         }
     }
 
+    #[instrument(level = "trace")]
     pub fn validate_password(password: &str) -> Option<String> {
         if password.len() < 8 {
             Some("Password must be at least 8 characters long.".to_string())
@@ -108,6 +110,7 @@ impl UserModel {
         }
     }
 
+    #[instrument(level = "trace")]
     pub async fn validate(
         database: &MySqlPool,
         user: &Self,

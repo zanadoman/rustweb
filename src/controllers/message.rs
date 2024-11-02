@@ -213,6 +213,7 @@ pub async fn destroy(
     }
 }
 
+#[instrument(level = "debug")]
 pub async fn events(
     State(state): State<Arc<StateService>>,
     Extension(token): Extension<Arc<String>>,
