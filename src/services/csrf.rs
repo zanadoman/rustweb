@@ -23,6 +23,12 @@ pub async fn csrf_service(
         *request.method(),
         Method::POST | Method::PUT | Method::DELETE | Method::PATCH
     ) {
+        if request.headers().get("Hx-Request").is_none() {
+            warn!("missing Hx-Request header");
+            return Err(
+                (StatusCode::FORBIDDEN, "Invalid Source.").into_response()
+            );
+        }
         let Some(token) = request.headers().get("X-CSRF-Token") else {
             warn!("missing X-CSRF-Token header");
             return Err(

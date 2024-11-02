@@ -24,17 +24,14 @@ impl StateService {
         })
     }
 
-    #[instrument(level = "trace")]
     pub fn id(&self) -> u64 {
         self.id.fetch_add(1, Ordering::AcqRel)
     }
 
-    #[instrument(level = "trace")]
     pub fn database(&self) -> &MySqlPool {
         &self.database
     }
 
-    #[instrument(level = "trace")]
     pub fn messages(&self) -> &Sender<(Event, Option<MessageModel>)> {
         &self.messages
     }
