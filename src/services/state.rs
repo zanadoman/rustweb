@@ -25,7 +25,7 @@ impl StateService {
     }
 
     pub fn id(&self) -> u64 {
-        self.id.fetch_add(1, Ordering::AcqRel)
+        self.id.fetch_add(1, Ordering::Relaxed)
     }
 
     pub fn database(&self) -> &MySqlPool {

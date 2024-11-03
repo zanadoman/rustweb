@@ -1,14 +1,14 @@
 # 🌐 Rust CRUD Website
 
-**A simple and efficient CRUD web application built with Rust, and Axum,
-featuring a minimalist frontend using only HTML, HTMX, and Bootstrap.**
+**A simple and efficient single-page CRUD web application built with Rust, and
+Axum, featuring a minimalist frontend using only HTML, HTMX, and Bootstrap.**
 
 ---
 
 ## ✨ Features & Goals
 
-- **Simple and Minimalistic:** Lightweight web application without complex
-  front-end framework or custom styling.
+- **Simple and Minimalistic:** Lightweight single-page web application without
+  complex front-end framework or custom styling.
 - **Rust-Powered Performance:** Built with Rust and Axum for efficient handling
   of concurrent requests and optimal server performance.
 - **Interactive Without JavaScript:** Uses HTMX and Bootstrap to deliver a
