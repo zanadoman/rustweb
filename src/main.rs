@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         routes()
             .layer(AuthenticatorService::new(state.database().clone()).await?)
             .layer(from_fn(integrity_service))
-            .layer(CsrfLayer::new(CsrfConfig::default()))
+            .layer(CsrfLayer::new(CsrfConfig::new()))
             .layer(TraceLayer::new_for_http().make_span_with(
                 |request: &Request| {
                     span! {

@@ -77,11 +77,11 @@ impl UserModel {
         name: &str,
     ) -> Option<String> {
         if name.is_empty() {
-            return Some("Name must be at least 1 character long.".to_string());
+            return Some("Name must be at least 1 character long.".to_owned());
         }
         if 100 < name.len() {
             return Some(
-                "Name must not be more than 50 characters long.".to_string(),
+                "Name must not be more than 50 characters long.".to_owned(),
             );
         }
         match query_as!(
@@ -92,11 +92,11 @@ impl UserModel {
         .fetch_optional(database)
         .await
         {
-            Ok(Some(..)) => Some("Name already taken.".to_string()),
+            Ok(Some(..)) => Some("Name already taken.".to_owned()),
             Ok(None) => None,
             Err(error) => {
                 error!("{error}");
-                Some("Internal server error.".to_string())
+                Some("Internal server error.".to_owned())
             }
         }
     }
@@ -104,7 +104,7 @@ impl UserModel {
     #[instrument(level = "trace")]
     pub fn validate_password(password: &str) -> Option<String> {
         if password.len() < 8 {
-            Some("Password must be at least 8 characters long.".to_string())
+            Some("Password must be at least 8 characters long.".to_owned())
         } else {
             None
         }

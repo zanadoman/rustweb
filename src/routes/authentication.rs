@@ -16,7 +16,7 @@ use crate::{
 
 #[instrument(level = "debug")]
 pub fn routes() -> Router<Arc<StateService>> {
-    Router::default()
+    Router::new()
         .route("/", get(authentication))
         .route("/register", post(register))
         .route("/login", post(login))

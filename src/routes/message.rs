@@ -16,7 +16,7 @@ use crate::{
 
 #[instrument(level = "debug")]
 pub fn routes() -> Router<Arc<StateService>> {
-    Router::default()
+    Router::new()
         .route("/messages", get(index).post(create))
         .route("/message/:id", get(show).put(update).delete(destroy))
         .route("/messages/events", get(events))

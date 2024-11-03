@@ -80,9 +80,9 @@ impl MessageModel {
     #[instrument(level = "trace")]
     pub fn validate_title(title: &str) -> Option<String> {
         if title.is_empty() {
-            Some("Title must be at least 1 character long.".to_string())
+            Some("Title must be at least 1 character long.".to_owned())
         } else if 100 < title.len() {
-            Some("Title must not be more than 100 characters long.".to_string())
+            Some("Title must not be more than 100 characters long.".to_owned())
         } else {
             None
         }
@@ -91,11 +91,11 @@ impl MessageModel {
     #[instrument(level = "trace")]
     pub fn validate_content(content: &str) -> Option<String> {
         if content.is_empty() {
-            Some("Content must be at least 1 character long.".to_string())
+            Some("Content must be at least 1 character long.".to_owned())
         } else if 100 < content.len() {
             Some(
                 "Content must not be more than 1000 characters long."
-                    .to_string(),
+                    .to_owned(),
             )
         } else {
             None

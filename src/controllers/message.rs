@@ -268,7 +268,7 @@ pub async fn events(
                         }
                     }
                 } else {
-                    String::default()
+                    String::new()
                 }))
             }
             Err(error) => {
@@ -277,7 +277,7 @@ pub async fn events(
             }
         },
     ))
-    .keep_alive(KeepAlive::default())
+    .keep_alive(KeepAlive::new())
 }
 
 #[instrument(level = "debug", skip(csrf))]
