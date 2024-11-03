@@ -137,7 +137,7 @@ pub async fn create(
         return StatusCode::INTERNAL_SERVER_ERROR.into_response();
     }
     match (ToastTemplate {
-        content: "Message sent.",
+        content: &format!("Message #{id} sent."),
     })
     .render()
     {
@@ -192,7 +192,7 @@ pub async fn update(
         return StatusCode::INTERNAL_SERVER_ERROR.into_response();
     }
     match (ToastTemplate {
-        content: "Message edited.",
+        content: &format!("Message #{id} edited."),
     })
     .render()
     {
@@ -232,7 +232,7 @@ pub async fn destroy(
         return StatusCode::INTERNAL_SERVER_ERROR.into_response();
     }
     match (ToastTemplate {
-        content: "Message deleted.",
+        content: &format!("Message #{id} deleted."),
     })
     .render()
     {
