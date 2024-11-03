@@ -17,9 +17,9 @@ use crate::{
 
 #[instrument(level = "debug", skip(authenticator, csrf))]
 pub async fn index(
-    authenticator: AuthSession<AuthenticatorService>,
     csrf: CsrfToken,
     Extension(token): Extension<Arc<String>>,
+    authenticator: AuthSession<AuthenticatorService>,
 ) -> impl IntoResponse {
     let Some(user) = authenticator.user else {
         return (StatusCode::SEE_OTHER, csrf, [("HX-Location", "/")])

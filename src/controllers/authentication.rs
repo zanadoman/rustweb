@@ -68,9 +68,9 @@ pub async fn register(
 
 #[instrument(level = "debug", skip(authenticator, csrf))]
 pub async fn login(
-    mut authenticator: AuthSession<AuthenticatorService>,
     csrf: CsrfToken,
     Extension(token): Extension<Arc<String>>,
+    mut authenticator: AuthSession<AuthenticatorService>,
     Form(user): Form<UserModel>,
 ) -> impl IntoResponse {
     let user = match authenticator.authenticate(user).await {
@@ -106,8 +106,8 @@ pub async fn login(
 
 #[instrument(level = "debug", skip(authenticator, csrf))]
 pub async fn logout(
-    mut authenticator: AuthSession<AuthenticatorService>,
     csrf: CsrfToken,
+    mut authenticator: AuthSession<AuthenticatorService>,
 ) -> impl IntoResponse {
     if let Err(error) = authenticator.logout().await {
         error!("{error}");
