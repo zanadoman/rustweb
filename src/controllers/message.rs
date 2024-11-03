@@ -38,7 +38,7 @@ pub async fn show(
     if headers.get("Hx-Request").is_none() {
         return Redirect::to("/dashboard").into_response();
     }
-    let message = match MessageModel::find(&state.database(), id).await {
+    let message = match MessageModel::find(state.database(), id).await {
         Ok(Some(message)) => message,
         Ok(None) => return (StatusCode::NOT_FOUND, csrf).into_response(),
         Err(error) => {
@@ -101,7 +101,7 @@ pub async fn create(
         return (StatusCode::BAD_REQUEST, csrf, Json(error)).into_response();
     }
     let id = match MessageModel::create(
-        &state.database(),
+        state.database(),
         &message.title,
         &message.content,
     )
@@ -160,7 +160,7 @@ pub async fn update(
         return (StatusCode::BAD_REQUEST, csrf, Json(error)).into_response();
     }
     match MessageModel::update(
-        &state.database(),
+        state.database(),
         id,
         &message.title,
         &message.content,
@@ -210,7 +210,7 @@ pub async fn destroy(
     State(state): State<Arc<StateService>>,
     csrf: CsrfToken,
 ) -> impl IntoResponse {
-    match MessageModel::delete(&state.database(), id).await {
+    match MessageModel::delete(state.database(), id).await {
         Err(sqlx::Error::Database(error)) => {
             warn!("{error}");
             return (StatusCode::CONFLICT, csrf, error.to_string())

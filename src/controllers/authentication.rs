@@ -55,7 +55,7 @@ pub async fn register(
     if let Some(error) = UserModel::validate(state.database(), &user).await {
         return (StatusCode::BAD_REQUEST, csrf, Json(error)).into_response();
     }
-    match UserModel::create(&state.database(), &user.name, &user.password).await
+    match UserModel::create(state.database(), &user.name, &user.password).await
     {
         Err(Error::Database(error)) => {
             warn!("{error}");

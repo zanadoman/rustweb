@@ -76,7 +76,7 @@ impl UserModel {
         database: &MySqlPool,
         name: &str,
     ) -> Option<String> {
-        if name.len() == 0 {
+        if name.is_empty() {
             return Some("Name must be at least 1 character long.".to_string());
         }
         if 100 < name.len() {

@@ -45,7 +45,7 @@ impl AuthenticatorService {
     ) -> Result<AuthManagerLayer<AuthenticatorService, MemoryStore>, Error>
     {
         Ok(AuthManagerLayerBuilder::new(
-            AuthenticatorService { 0: database },
+            AuthenticatorService(database),
             SessionManagerLayer::new(MemoryStore::default())
                 .with_expiry(Expiry::OnInactivity(Duration::days(1)))
                 .with_secure(false),
