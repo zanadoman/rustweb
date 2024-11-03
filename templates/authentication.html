@@ -21,7 +21,7 @@
                 <div class="carousel-item p-5">
                     <h2 class="mb-5 fw-bold text-center">REGISTER</h2>
                     <p class="mb-4 text-muted text-center">Please enter a name and password!</p>
-                    <form hx-post="/register" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
+                    <form hx-post="/register" hx-target="#toasts" hx-swap="afterbegin" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
                         <div class="form-floating mb-3" hx-target="this" hx-swap="outerHTML">
                             <input id="register-form-name" class="form-control border-0" type="text" name="name" placeholder="Name" autocomplete="username" hx-post="/register/validate/name" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
                             <label for="register-form-name">Name</label>

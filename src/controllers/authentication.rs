@@ -15,9 +15,12 @@ use tracing::{error, instrument, warn};
 use crate::{
     models::user::UserModel,
     services::{authenticator::AuthenticatorService, state::StateService},
-    templates::authentication::{
-        AuthenticationFormNameTemplate, AuthenticationFormPasswordTemplate,
-        AuthenticationLoginTemplate, AuthenticationTemplate,
+    templates::{
+        authentication::{
+            AuthenticationFormNameTemplate, AuthenticationFormPasswordTemplate,
+            AuthenticationLoginTemplate, AuthenticationTemplate,
+        },
+        toast::ToastTemplate,
     },
 };
 
@@ -54,11 +57,23 @@ pub async fn register(
     }
     match UserModel::create(&state.database(), &user.name, &user.password).await
     {
-        Ok(..) => (StatusCode::NO_CONTENT, csrf).into_response(),
         Err(Error::Database(error)) => {
             warn!("{error}");
-            (StatusCode::CONFLICT, csrf, error.to_string()).into_response()
+            return (StatusCode::CONFLICT, csrf, error.to_string())
+                .into_response();
         }
+        Err(error) => {
+            error!("{error}");
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        }
+        _ => (),
+    }
+    match (ToastTemplate {
+        content: "Successful registration.",
+    })
+    .render()
+    {
+        Ok(toast) => (StatusCode::CREATED, csrf, Html(toast)).into_response(),
         Err(error) => {
             error!("{error}");
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
