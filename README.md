@@ -7,7 +7,6 @@ featuring a minimalist frontend using only HTML, HTMX, and Bootstrap.**
 
 ## ✨ Features & Goals
 
-- **High Performance:** Optimized to deliver .
 - **Simple and Minimalistic:** Lightweight web application without complex
   front-end framework or custom styling.
 - **Rust-Powered Performance:** Built with Rust and Axum for efficient handling
