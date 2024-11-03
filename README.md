@@ -23,9 +23,9 @@ featuring a minimalist frontend using only HTML, HTMX, and Bootstrap.**
 
 To host the website, make sure you have the following depencencies installed:
 
-**Rustup**
-**MariaDB**
-**sqlx-cli**
+- **Rustup**
+- **MariaDB**
+- **sqlx-cli**
 
 ---
 

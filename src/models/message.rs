@@ -23,14 +23,14 @@ impl MessageModel {
         database: &MySqlPool,
         id: i32,
     ) -> Result<Option<Self>, Error> {
-        query_as!(Self, "SELECT * FROM messages WHERE id = ? LIMIT 1", id)
+        query_as!(Self, "SELECT * FROM messages WHERE id = ? LIMIT 1;", id)
             .fetch_optional(database)
             .await
     }
 
     #[instrument(level = "trace")]
     pub async fn all(database: &MySqlPool) -> Result<Vec<Self>, Error> {
-        query_as!(Self, "SELECT * FROM messages ORDER BY id DESC")
+        query_as!(Self, "SELECT * FROM messages ORDER BY id DESC;")
             .fetch_all(database)
             .await
     }
@@ -42,7 +42,7 @@ impl MessageModel {
         content: &str,
     ) -> Result<MySqlQueryResult, Error> {
         query!(
-            "INSERT INTO messages (title, content) VALUES (?, ?)",
+            "INSERT INTO messages (title, content) VALUES (?, ?);",
             title,
             content
         )
@@ -58,7 +58,7 @@ impl MessageModel {
         content: &str,
     ) -> Result<MySqlQueryResult, Error> {
         query!(
-            "UPDATE messages SET title = ?, content = ? WHERE id = ?",
+            "UPDATE messages SET title = ?, content = ? WHERE id = ?;",
             title,
             content,
             id
@@ -72,7 +72,7 @@ impl MessageModel {
         database: &MySqlPool,
         id: i32,
     ) -> Result<MySqlQueryResult, Error> {
-        query!("DELETE FROM messages WHERE id = ?", id)
+        query!("DELETE FROM messages WHERE id = ?;", id)
             .execute(database)
             .await
     }

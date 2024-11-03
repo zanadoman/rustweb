@@ -51,7 +51,7 @@ impl UserModel {
         database: &MySqlPool,
         name: &str,
     ) -> Result<Option<Self>, Error> {
-        query_as!(Self, "SELECT * FROM users WHERE name = ? LIMIT 1", name)
+        query_as!(Self, "SELECT * FROM users WHERE name = ? LIMIT 1;", name)
             .fetch_optional(database)
             .await
     }
@@ -63,7 +63,7 @@ impl UserModel {
         password: &str,
     ) -> Result<MySqlQueryResult, Error> {
         query!(
-            "INSERT INTO users VALUES (?, ?)",
+            "INSERT INTO users VALUES (?, ?);",
             name,
             generate_hash(password)
         )
@@ -86,7 +86,7 @@ impl UserModel {
         }
         match query_as!(
             Self,
-            "SELECT * FROM users WHERE name = ? LIMIT 1",
+            "SELECT * FROM users WHERE name = ? LIMIT 1;",
             name
         )
         .fetch_optional(database)
