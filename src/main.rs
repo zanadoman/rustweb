@@ -34,7 +34,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .init();
     let listener = TcpListener::bind(var("APP_ADDRESS")?.as_str()).await?;
     info!("{listener:?}");
-    let state = StateService::new(var("DATABASE_URL")?.as_str()).await?;
+    let state =
+        Arc::new(StateService::new(var("DATABASE_URL")?.as_str()).await?);
     info!("{state:?}");
     serve(
         listener,
@@ -52,7 +53,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     }
                 },
             ))
-            .with_state(Arc::new(state))
+            .with_state(state)
             .nest_service("/assets", ServeDir::new("./assets")),
     )
     .with_graceful_shutdown(async { ctrl_c().await.unwrap() })

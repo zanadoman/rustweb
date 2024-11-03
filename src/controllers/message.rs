@@ -5,8 +5,8 @@ use axum::{
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
     response::{
-        sse::{Event, KeepAlive, Sse},
-        Html, IntoResponse, Redirect,
+        sse::{Event, KeepAlive},
+        Html, IntoResponse, Redirect, Sse,
     },
     Extension, Form, Json,
 };
