@@ -17,9 +17,13 @@ use tracing::{error, instrument, warn};
 use crate::{
     models::message::MessageModel,
     services::state::StateService,
-    templates::message::{
-        MessageEventTemplate, MessageFormContentTemplate,
-        MessageFormTitleTemplate, MessageIndexTemplate, MessageShowTemplate,
+    templates::{
+        message::{
+            MessageEventTemplate, MessageFormContentTemplate,
+            MessageFormTitleTemplate, MessageIndexTemplate,
+            MessageShowTemplate,
+        },
+        toast::ToastTemplate,
     },
 };
 
@@ -130,9 +134,18 @@ pub async fn create(
         }),
     )) {
         error!("{error}");
-        StatusCode::INTERNAL_SERVER_ERROR.into_response()
-    } else {
-        (StatusCode::NO_CONTENT, csrf).into_response()
+        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+    }
+    match (ToastTemplate {
+        content: "Message sent.",
+    })
+    .render()
+    {
+        Ok(toast) => (StatusCode::CREATED, csrf, Html(toast)).into_response(),
+        Err(error) => {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
     }
 }
 
@@ -176,9 +189,18 @@ pub async fn update(
         }),
     )) {
         error!("{error}");
-        StatusCode::INTERNAL_SERVER_ERROR.into_response()
-    } else {
-        (StatusCode::NO_CONTENT, csrf).into_response()
+        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+    }
+    match (ToastTemplate {
+        content: "Message edited.",
+    })
+    .render()
+    {
+        Ok(toast) => (StatusCode::OK, csrf, Html(toast)).into_response(),
+        Err(error) => {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
     }
 }
 
@@ -207,9 +229,18 @@ pub async fn destroy(
         None,
     )) {
         error!("{error}");
-        StatusCode::INTERNAL_SERVER_ERROR.into_response()
-    } else {
-        (StatusCode::NO_CONTENT, csrf).into_response()
+        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+    }
+    match (ToastTemplate {
+        content: "Message deleted.",
+    })
+    .render()
+    {
+        Ok(toast) => (StatusCode::OK, csrf, Html(toast)).into_response(),
+        Err(error) => {
+            error!("{error}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
     }
 }
 
