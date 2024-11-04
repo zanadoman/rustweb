@@ -46,11 +46,11 @@ pub async fn integrity_service(
             );
         }
     }
-    let token = csrf.authenticity_token().map_err(|error| {
+    let token = Arc::new(csrf.authenticity_token().map_err(|error| {
         error!("{error}");
         StatusCode::INTERNAL_SERVER_ERROR.into_response()
-    })?;
-    if request.extensions_mut().insert(Arc::new(token)).is_some() {
+    })?);
+    if request.extensions_mut().insert(token).is_some() {
         error!("token insertion failed");
         return Err(StatusCode::INTERNAL_SERVER_ERROR.into_response());
     }
