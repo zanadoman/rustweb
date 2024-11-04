@@ -35,7 +35,7 @@ pub async fn show(
     Extension(token): Extension<Arc<String>>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
-    if headers.get("Hx-Request").is_none() {
+    if headers.get("HX-Request").is_none() {
         return Redirect::to("/dashboard").into_response();
     }
     let message = match MessageModel::find(state.database(), id).await {
@@ -67,7 +67,7 @@ pub async fn index(
     Extension(token): Extension<Arc<String>>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
-    if headers.get("Hx-Request").is_none() {
+    if headers.get("HX-Request").is_none() {
         return Redirect::to("/dashboard").into_response();
     }
     let messages = match MessageModel::all(state.database()).await {

@@ -23,8 +23,8 @@ pub async fn integrity_service(
         *request.method(),
         Method::POST | Method::PUT | Method::DELETE | Method::PATCH
     ) {
-        if request.headers().get("Hx-Request").is_none() {
-            warn!("missing Hx-Request header");
+        if request.headers().get("HX-Request").is_none() {
+            warn!("missing HX-Request header");
             return Err(
                 (StatusCode::FORBIDDEN, "Invalid Source.").into_response()
             );

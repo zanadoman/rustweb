@@ -32,9 +32,13 @@ pub async fn index(
     })
     .render()
     {
-        Ok(dashboard) => {
-            (StatusCode::OK, csrf, Html(dashboard)).into_response()
-        }
+        Ok(dashboard) => (
+            StatusCode::OK,
+            [("HX-Retarget", "body")],
+            csrf,
+            Html(dashboard),
+        )
+            .into_response(),
         Err(error) => {
             error!("{error}");
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
