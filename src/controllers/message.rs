@@ -291,7 +291,7 @@ pub async fn validate_title(
         token: &token,
         id,
         value: &message.title,
-        error: MessageModel::validate_title(&message.title).as_deref(),
+        error: MessageModel::validate_title(&message.title),
     })
     .render()
     {
@@ -316,7 +316,7 @@ pub async fn validate_content(
         token: &token,
         id,
         value: &message.content,
-        error: MessageModel::validate_content(&message.content).as_deref(),
+        error: MessageModel::validate_content(&message.content),
     })
     .render()
     {

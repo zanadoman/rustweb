@@ -142,9 +142,7 @@ pub async fn validate_name(
     match (AuthenticationFormNameTemplate {
         token: &token,
         value: &user.name,
-        error: UserModel::validate_name(state.database(), &user.name)
-            .await
-            .as_deref(),
+        error: UserModel::validate_name(state.database(), &user.name).await,
     })
     .render()
     {
@@ -168,7 +166,7 @@ pub async fn validate_password(
     match (AuthenticationFormPasswordTemplate {
         token: &token,
         value: &user.password,
-        error: UserModel::validate_password(&user.password).as_deref(),
+        error: UserModel::validate_password(&user.password),
     })
     .render()
     {

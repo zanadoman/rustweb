@@ -13,8 +13,8 @@ pub struct MessageModel {
 
 #[derive(Serialize)]
 pub struct MessageModelError {
-    pub title: Option<String>,
-    pub content: Option<String>,
+    pub title: Option<&'static str>,
+    pub content: Option<&'static str>,
 }
 
 impl MessageModel {
@@ -78,25 +78,22 @@ impl MessageModel {
     }
 
     #[instrument(level = "trace")]
-    pub fn validate_title(title: &str) -> Option<String> {
+    pub fn validate_title(title: &str) -> Option<&'static str> {
         if title.is_empty() {
-            Some("Title must be at least 1 character long.".to_owned())
+            Some("Title must be at least 1 character long.")
         } else if 100 < title.len() {
-            Some("Title must not be more than 100 characters long.".to_owned())
+            Some("Title must not be more than 100 characters long.")
         } else {
             None
         }
     }
 
     #[instrument(level = "trace")]
-    pub fn validate_content(content: &str) -> Option<String> {
+    pub fn validate_content(content: &str) -> Option<&'static str> {
         if content.is_empty() {
-            Some("Content must be at least 1 character long.".to_owned())
+            Some("Content must be at least 1 character long.")
         } else if 100 < content.len() {
-            Some(
-                "Content must not be more than 1000 characters long."
-                    .to_owned(),
-            )
+            Some("Content must not be more than 1000 characters long.")
         } else {
             None
         }

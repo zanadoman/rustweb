@@ -19,8 +19,8 @@ pub struct UserModel {
 
 #[derive(Serialize)]
 pub struct UserModelError {
-    pub name: Option<String>,
-    pub password: Option<String>,
+    pub name: Option<&'static str>,
+    pub password: Option<&'static str>,
 }
 
 impl Debug for UserModel {
@@ -75,14 +75,12 @@ impl UserModel {
     pub async fn validate_name(
         database: &MySqlPool,
         name: &str,
-    ) -> Option<String> {
+    ) -> Option<&'static str> {
         if name.is_empty() {
-            return Some("Name must be at least 1 character long.".to_owned());
+            return Some("Name must be at least 1 character long.");
         }
         if 100 < name.len() {
-            return Some(
-                "Name must not be more than 50 characters long.".to_owned(),
-            );
+            return Some("Name must not be more than 50 characters long.");
         }
         match query_as!(
             Self,
@@ -92,19 +90,19 @@ impl UserModel {
         .fetch_optional(database)
         .await
         {
-            Ok(Some(..)) => Some("Name already taken.".to_owned()),
+            Ok(Some(..)) => Some("Name already taken."),
             Ok(None) => None,
             Err(error) => {
                 error!("{error}");
-                Some("Internal server error.".to_owned())
+                Some("Internal server error.")
             }
         }
     }
 
     #[instrument(level = "trace")]
-    pub fn validate_password(password: &str) -> Option<String> {
+    pub fn validate_password(password: &str) -> Option<&'static str> {
         if password.len() < 8 {
-            Some("Password must be at least 8 characters long.".to_owned())
+            Some("Password must be at least 8 characters long.")
         } else {
             None
         }

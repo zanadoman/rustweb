@@ -32,10 +32,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with(EnvFilter::try_from_default_env()?)
         .with(fmt::layer().with_span_events(FmtSpan::NEW | FmtSpan::CLOSE))
         .init();
-    let listener = TcpListener::bind(var("APP_ADDRESS")?.as_str()).await?;
+    let listener = TcpListener::bind(&var("APP_ADDRESS")?).await?;
     info!("{listener:?}");
-    let state =
-        Arc::new(StateService::new(var("DATABASE_URL")?.as_str()).await?);
+    let state = Arc::new(StateService::new(&var("DATABASE_URL")?).await?);
     info!("{state:?}");
     serve(
         listener,
