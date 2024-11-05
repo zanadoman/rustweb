@@ -1,9 +1,25 @@
 {% if let Some(id) = message.id %}
-<div class="d-flex m-2 p-1 align-items-center bg-body rounded-2 shadow" sse-swap="update{{ id }}, destroy{{ id }}" hx-swap="outerHTML">
+<div
+    class="d-flex m-2 p-1 align-items-center bg-body rounded-2 shadow"
+    sse-swap="update{{ id }}, destroy{{ id }}"
+    hx-swap="outerHTML">
     <div class="flex-grow-1 m-1 overflow-hidden">
-        <h5 class="my-auto fw-bold text-nowrap">#{{ id }} {{ message.title }}</h5>
+        <h5 class="my-auto fw-bold text-nowrap"
+        >#{{ id }} {{ message.title }}</h5>
     </div>
-    <button class="btn btn-sm btn-primary m-1" type="button" hx-get="/message/{{ id }}" hx-target="#messages" hx-swap="innerHTML">View</button>
-    <button class="btn btn-sm btn-danger m-1" type="button" hx-delete="/message/{{ id }}" hx-swap="none" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Delete</button>
+    <button
+        class="btn btn-sm btn-primary m-1"
+        type="button"
+        hx-get="/message/{{ id }}"
+        hx-target="#messages"
+        hx-swap="innerHTML"
+    >View</button>
+    <button
+        class="btn btn-sm btn-danger m-1"
+        type="button"
+        hx-delete="/message/{{ id }}"
+        hx-swap="none"
+        hx-headers='{"X-CSRF-Token": "{{ token }}"}'
+    >Delete</button>
 </div>
 {% endif %}
