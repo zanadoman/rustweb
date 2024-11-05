@@ -1,8 +1,10 @@
-<div class="toast show">
-    <div class="d-flex p-1 align-items-center">
-        <div class="flex-grow-1 m-1 overflow-hidden">
-            <span class="text-nowrap">{{ content }}</span>
+<div hx-swap-oob="afterbegin:#toasts">
+    <div class="toast show" remove-me="5s">
+        <div class="d-flex p-1 align-items-center">
+            <div class="flex-grow-1 m-1 overflow-hidden">
+                <span class="text-nowrap">{{ content }}</span>
+            </div>
+            <button type="button" class="btn-close m-1" data-bs-dismiss="toast"></button>
         </div>
-        <button type="button" class="btn-close m-1" data-bs-dismiss="toast"></button>
     </div>
 </div>
