@@ -23,8 +23,8 @@ pub async fn integrity_service(
         *request.method(),
         Method::POST | Method::PUT | Method::DELETE | Method::PATCH
     ) {
-        if request.headers().get("Hx-Request").is_none() {
-            warn!("missing Hx-Request header");
+        if request.headers().get("HX-Request").is_none() {
+            warn!("missing HX-Request header");
             return Err(
                 (StatusCode::FORBIDDEN, "Invalid Source.").into_response()
             );
@@ -46,11 +46,11 @@ pub async fn integrity_service(
             );
         }
     }
-    let token = csrf.authenticity_token().map_err(|error| {
+    let token = Arc::new(csrf.authenticity_token().map_err(|error| {
         error!("{error}");
         StatusCode::INTERNAL_SERVER_ERROR.into_response()
-    })?;
-    if request.extensions_mut().insert(Arc::new(token)).is_some() {
+    })?);
+    if request.extensions_mut().insert(token).is_some() {
         error!("token insertion failed");
         return Err(StatusCode::INTERNAL_SERVER_ERROR.into_response());
     }

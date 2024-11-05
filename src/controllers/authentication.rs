@@ -36,9 +36,13 @@ pub async fn authentication(
     })
     .render()
     {
-        Ok(authentication) => {
-            (StatusCode::OK, csrf, Html(authentication)).into_response()
-        }
+        Ok(authentication) => (
+            StatusCode::OK,
+            [("HX-Retarget", "body")],
+            csrf,
+            Html(authentication),
+        )
+            .into_response(),
         Err(error) => {
             error!("{error}");
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
@@ -100,7 +104,7 @@ pub async fn login(
             error!("{error}");
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
         } else {
-            (StatusCode::SEE_OTHER, csrf, [("HX-Location", "/dashboard")])
+            (StatusCode::SEE_OTHER, [("HX-Location", "/dashboard")], csrf)
                 .into_response()
         }
     } else {
@@ -128,7 +132,7 @@ pub async fn logout(
         error!("{error}");
         StatusCode::INTERNAL_SERVER_ERROR.into_response()
     } else {
-        (StatusCode::SEE_OTHER, csrf, [("HX-Location", "/")]).into_response()
+        (StatusCode::SEE_OTHER, [("HX-Location", "/")], csrf).into_response()
     }
 }
 
