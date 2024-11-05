@@ -56,13 +56,13 @@ pub async fn show(
         form_title: &MessageFormTitleTemplate {
             token: &token,
             id,
-            value: "",
+            value: &message.title,
             error: None,
         },
         form_content: &MessageFormContentTemplate {
             token: &token,
             id,
-            value: "",
+            value: &message.content,
             error: None,
         },
     })
