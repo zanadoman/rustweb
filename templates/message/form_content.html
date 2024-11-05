@@ -1,5 +1,21 @@
-<div class="form-floating mb-3" hx-target="this" hx-swap="outerHTML">
-    <textarea id="message{{ id }}-form-content" class="form-control {% if error.is_some() %} is-invalid {% else %} is-valid {% endif %}" name="content" placeholder="Content" hx-post="/message/{{ id }}/validate/content" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>{{ value }}</textarea>
+<div
+    class="form-floating mb-3"
+    hx-target="this"
+    hx-swap="outerHTML"
+>
+    <textarea
+        id="message{{ id }}-form-content"
+        class="form-control
+               {% if error.is_some() %}
+               is-invalid
+               {% else if !value.is_empty() %}
+               is-valid
+               {% endif %}"
+        name="content"
+        placeholder="Content"
+        hx-post="/message/{{ id }}/validate/content"
+        hx-headers='{"X-CSRF-Token": "{{ token }}"}'
+    >{{ value }}</textarea>
     <label for="message{{ id }}-form-content">Content</label>
     {% if let Some(error) = error %}
     <div class="invalid-feedback">

@@ -1,16 +1,34 @@
-{% if let Some(id) = message.id %}
-<h2 class="mb-5 fw-bold text-center" hx-get="/messages" hx-trigger="sse:destroy{{ id }}" hx-target="#messages" hx-swap="innerHTML">MESSAGE #{{ id }}</h2>
-<form hx-put="/message/{{ id }}" hx-swap="none" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
-    <div class="form-floating mb-3" hx-target="this" hx-swap="outerHTML">
-        <input id="message{{ id }}-form-title" class="form-control border-0" type="text" name="title" placeholder="Title" value="{{ message.title }}" hx-post="/message/{{ id }}/validate/title" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
-        <label for="message{{ id }}-form-title">Title</label>
-    </div>
-    <div class="form-floating mb-3" hx-target="this" hx-swap="outerHTML">
-        <textarea id="message{{ id }}-form-content" class="form-control border-0" name="content" placeholder="Content" hx-post="/message/{{ id }}/validate/content" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>{{ message.content }}</textarea>
-        <label for="message{{ id }}-form-content">Content</label>
-    </div>
-    <button class="btn btn-primary w-100 mb-3" type="submit">Edit</button>
-    <button class="btn btn-danger w-100 mb-3" type="button" hx-delete="/message/{{ id }}" hx-swap="none" hx-confirm="Are you sure you want to delete this message?" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>Delete</button>
-    <button class="btn btn-primary w-100 mb-5" type="button" hx-get="/messages" hx-target="#messages" hx-swap="innerHTML">Close</button>
-</form>
-{% endif %}
+<span
+    hx-get="/messages"
+    hx-trigger="sse:destroy{{ id }}"
+    hx-target="#messages"
+    hx-swap="innerHTML"
+>
+    <h2 class="mb-5 fw-bold text-center">MESSAGE #{{ id }}</h2>
+    <form
+        hx-put="/message/{{ id }}"
+        hx-swap="none"
+        hx-headers='{"X-CSRF-Token": "{{ token }}"}'
+    >
+        {{ form_title|safe }}
+        {{ form_content|safe }}
+        <button
+            class="btn btn-primary w-100 mb-3"
+            type="submit"
+        >Edit</button>
+        <button
+            class="btn btn-danger w-100 mb-3"
+            type="button"
+            hx-delete="/message/{{ id }}"
+            hx-swap="none"
+            hx-headers='{"X-CSRF-Token": "{{ token }}"}'
+        >Delete</button>
+        <button
+            class="btn btn-primary w-100 mb-5"
+            type="button"
+            hx-get="/messages"
+            hx-target="#messages"
+            hx-swap="innerHTML"
+        >Close</button>
+    </form>
+</span>

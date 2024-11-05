@@ -6,7 +6,9 @@ use crate::models::message::MessageModel;
 #[template(path = "./message/show.html")]
 pub struct MessageShowTemplate<'a> {
     pub token: &'a str,
-    pub message: &'a MessageModel,
+    pub id: i32,
+    pub form_title: &'a MessageFormTitleTemplate<'a>,
+    pub form_content: &'a MessageFormContentTemplate<'a>,
 }
 
 #[derive(Template)]

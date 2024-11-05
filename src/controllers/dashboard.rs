@@ -12,7 +12,10 @@ use tracing::{error, instrument};
 
 use crate::{
     services::authenticator::AuthenticatorService,
-    templates::dashboard::DashboardTemplate,
+    templates::{
+        dashboard::DashboardTemplate,
+        message::{MessageFormContentTemplate, MessageFormTitleTemplate},
+    },
 };
 
 #[instrument(level = "debug", skip(authenticator, csrf))]
@@ -29,6 +32,18 @@ pub async fn index(
         token: &token,
         location: "Dashboard",
         name: Some(&user.name),
+        message_form_title: &MessageFormTitleTemplate {
+            token: &token,
+            id: 0,
+            value: "",
+            error: None,
+        },
+        message_form_content: &MessageFormContentTemplate {
+            token: &token,
+            id: 0,
+            value: "",
+            error: None,
+        },
     })
     .render()
     {

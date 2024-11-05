@@ -46,9 +46,25 @@ pub async fn show(
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
     };
+    let Some(id) = message.id else {
+        error!("missing id");
+        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+    };
     match (MessageShowTemplate {
         token: &token,
-        message: &message,
+        id,
+        form_title: &MessageFormTitleTemplate {
+            token: &token,
+            id,
+            value: "",
+            error: None,
+        },
+        form_content: &MessageFormContentTemplate {
+            token: &token,
+            id,
+            value: "",
+            error: None,
+        },
     })
     .render()
     {
