@@ -18,7 +18,7 @@ use crate::{
     templates::{
         authentication::{
             AuthenticationFormNameTemplate, AuthenticationFormPasswordTemplate,
-            AuthenticationLoginTemplate, AuthenticationTemplate,
+            AuthenticationFormTemplate, AuthenticationTemplate,
         },
         toast::ToastTemplate,
     },
@@ -29,23 +29,7 @@ pub async fn authentication(
     csrf: CsrfToken,
     Extension(token): Extension<Arc<String>>,
 ) -> impl IntoResponse {
-    match (AuthenticationTemplate {
-        token: &token,
-        location: "Authentication",
-        name: None,
-        form_name: &AuthenticationFormNameTemplate {
-            token: &token,
-            value: "",
-            error: None,
-        },
-        form_password: &AuthenticationFormPasswordTemplate {
-            token: &token,
-            value: "",
-            error: None,
-        },
-    })
-    .render()
-    {
+    match AuthenticationTemplate::new(&token).render() {
         Ok(authentication) => (
             StatusCode::OK,
             [("HX-Retarget", "body")],
@@ -118,11 +102,9 @@ pub async fn login(
                 .into_response()
         }
     } else {
-        match (AuthenticationLoginTemplate {
-            token: &token,
-            error: true,
-        })
-        .render()
+        match AuthenticationFormTemplate::new(&token, true)
+            .validate(Some("Invalid credential."))
+            .render()
         {
             Ok(login) => (StatusCode::OK, csrf, Html(login)).into_response(),
             Err(error) => {
@@ -153,12 +135,12 @@ pub async fn validate_name(
     Extension(token): Extension<Arc<String>>,
     Form(user): Form<UserModel>,
 ) -> impl IntoResponse {
-    match (AuthenticationFormNameTemplate {
-        token: &token,
-        value: &user.name,
-        error: UserModel::validate_name(state.database(), &user.name).await,
-    })
-    .render()
+    match AuthenticationFormNameTemplate::new(&token, true)
+        .validate(
+            &user.name,
+            UserModel::validate_name(state.database(), &user.name).await,
+        )
+        .render()
     {
         Ok(form_name) => {
             (StatusCode::OK, csrf, Html(form_name)).into_response()
@@ -172,17 +154,13 @@ pub async fn validate_name(
 
 #[instrument(level = "debug", skip(csrf))]
 pub async fn validate_password(
-    State(state): State<Arc<StateService>>,
     csrf: CsrfToken,
     Extension(token): Extension<Arc<String>>,
     Form(user): Form<UserModel>,
 ) -> impl IntoResponse {
-    match (AuthenticationFormPasswordTemplate {
-        token: &token,
-        value: &user.password,
-        error: UserModel::validate_password(&user.password),
-    })
-    .render()
+    match AuthenticationFormPasswordTemplate::new(&token, true)
+        .validate(&user.password, UserModel::validate_password(&user.password))
+        .render()
     {
         Ok(form_password) => {
             (StatusCode::OK, csrf, Html(form_password)).into_response()

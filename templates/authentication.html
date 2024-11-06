@@ -2,33 +2,60 @@
 {% block content %}
 
 <div class="row justify-content-center">
-    <div class="col-12 col-lg-8 row p-0 bg-body-secondary rounded-3 shadow overflow-hidden">
-        <div class="d-flex col-12 col-md-4 p-0 justify-content-center overflow-hidden">
-            <img class="h-100" src="/assets/images/authentication.webp" alt="authentication">
+    <div class="col-12 col-lg-8 row
+                p-0
+                bg-body-secondary rounded-3 shadow overflow-hidden"
+    >
+        <div class="d-flex col-12 col-md-4
+                    p-0
+                    justify-content-center overflow-hidden"
+        >
+            <img
+                class="h-100"
+                src="/assets/images/authentication.webp"
+                alt="authentication"
+            >
         </div>
         <div id="authentication" class="carousel slide col-12 col-md-8 p-0">
             <div class="carousel-inner">
-                <div class="carousel-item active p-5">
+               <div class="carousel-item p-5 active">
                     <h2 class="mb-5 fw-bold text-center">LOGIN</h2>
-                    <p class="mb-4 text-muted text-center">Please enter your name and password!</p>
-                    {% let error = false %}
-                    {% include "./authentication/login.html" %}
+                    <p class="mb-4 text-muted text-center"
+                    >Please enter your name and password!</p>
+                    {{ form|safe }}
                     <div class="d-flex justify-content-center">
                         <span class="me-2 my-auto">Don't have an account?</span>
-                        <button class="btn btn-sm btn-primary" data-bs-target="#authentication" data-bs-slide="next">Register</button>
+                        <button
+                            class="btn btn-sm btn-primary"
+                            data-bs-target="#authentication"
+                            data-bs-slide="next"
+                        >Register</button>
                     </div>
                 </div>
                 <div class="carousel-item p-5">
                     <h2 class="mb-5 fw-bold text-center">REGISTER</h2>
-                    <p class="mb-4 text-muted text-center">Please enter a name and password!</p>
-                    <form hx-post="/register" hx-swap="none" hx-headers='{"X-CSRF-Token": "{{ token }}"}'>
+                    <p class="mb-4 text-muted text-center"
+                    >Please enter a name and password!</p>
+                    <form
+                        hx-post="/register"
+                        hx-swap="none"
+                        hx-headers='{"X-CSRF-Token": "{{ token }}"}'
+                    >
                         {{ form_name|safe }}
                         {{ form_password|safe }}
-                        <button class="btn btn-primary w-100 mb-5" type="submit">Register</button>
+                        <button
+                            class="btn btn-primary w-100 mb-5"
+                            type="submit"
+                        >Register</button>
                     </form>
                     <div class="d-flex justify-content-center">
-                        <span class="me-2 my-auto">Already have an account?</span>
-                        <button class="btn btn-sm btn-primary" data-bs-target="#authentication" data-bs-slide="prev">Login</button>
+                        <span class="me-2 my-auto"
+                        >Already have an account?</span>
+                        <button
+                            class="btn btn-sm btn-primary"
+                            data-bs-target="#authentication"
+                            data-bs-slide="prev"
+                        >Login</button>
                     </div>
                 </div>
             </div>

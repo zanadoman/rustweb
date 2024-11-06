@@ -1,4 +1,10 @@
-<div class="form-floating mb-3" hx-target="this" hx-swap="outerHTML">
+<div
+    class="form-floating mb-3"
+    {% if validation %}
+    hx-target="this"
+    hx-swap="outerHTML"
+    {% endif %}
+>
     <input
         id="register-form-name"
         class="form-control
@@ -14,8 +20,10 @@
         placeholder="Name"
         autocomplete="username"
         value="{{ value }}"
-        hx-post="/register/validate/name"
+        {% if validation %}
+        hx-post="/validate/name"
         hx-headers='{"X-CSRF-Token": "{{ token }}"}'
+        {% endif %}
     >
     <label for="register-form-name">Name</label>
     {% if let Some(error) = error %}

@@ -1,0 +1,14 @@
+<form
+    hx-post="/login"
+    hx-swap="outerHTML"
+    hx-headers='{"X-CSRF-Token": "{{ token }}"}'
+>
+    {{ form_name|safe }}
+    {{ form_password|safe }}
+    {% if error %}
+    <div class="invalid-feedback">
+        <p class="text-center">Invalid credentials.</p>
+    </div>
+    {% endif %}
+    <button class="btn btn-primary w-100 mb-5" type="submit">Login</button>
+</form>

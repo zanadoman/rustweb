@@ -21,6 +21,6 @@ pub fn routes() -> Router<Arc<StateService>> {
         .route("/register", post(register))
         .route("/login", post(login))
         .route("/logout", post(logout))
-        .route("/register/validate/name", post(validate_name))
-        .route("/register/validate/password", post(validate_password))
+        .route("/validate/name", post(validate_name))
+        .route("/validate/password", post(validate_password))
 }
