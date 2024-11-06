@@ -152,11 +152,7 @@ pub async fn create(
         error!("{error}");
         return StatusCode::INTERNAL_SERVER_ERROR.into_response();
     }
-    match (ToastTemplate {
-        content: &format!("Message #{id} sent."),
-    })
-    .render()
-    {
+    match ToastTemplate::new(&format!("Message #{id} sent.")).render() {
         Ok(toast) => (StatusCode::CREATED, csrf, Html(toast)).into_response(),
         Err(error) => {
             error!("{error}");
@@ -207,11 +203,7 @@ pub async fn update(
         error!("{error}");
         return StatusCode::INTERNAL_SERVER_ERROR.into_response();
     }
-    match (ToastTemplate {
-        content: &format!("Message #{id} edited."),
-    })
-    .render()
-    {
+    match ToastTemplate::new(&format!("Message #{id} sent.")).render() {
         Ok(toast) => (StatusCode::OK, csrf, Html(toast)).into_response(),
         Err(error) => {
             error!("{error}");
@@ -247,11 +239,7 @@ pub async fn destroy(
         error!("{error}");
         return StatusCode::INTERNAL_SERVER_ERROR.into_response();
     }
-    match (ToastTemplate {
-        content: &format!("Message #{id} deleted."),
-    })
-    .render()
-    {
+    match ToastTemplate::new(&format!("Message #{id} deleted.")).render() {
         Ok(toast) => (StatusCode::OK, csrf, Html(toast)).into_response(),
         Err(error) => {
             error!("{error}");

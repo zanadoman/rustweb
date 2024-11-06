@@ -66,11 +66,7 @@ pub async fn register(
         }
         _ => (),
     }
-    match (ToastTemplate {
-        content: "Successful registration.",
-    })
-    .render()
-    {
+    match ToastTemplate::new("Successful registration.").render() {
         Ok(toast) => (StatusCode::CREATED, csrf, Html(toast)).into_response(),
         Err(error) => {
             error!("{error}");
