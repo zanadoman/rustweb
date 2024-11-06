@@ -50,23 +50,8 @@ pub async fn show(
         error!("missing id");
         return StatusCode::INTERNAL_SERVER_ERROR.into_response();
     };
-    match (MessageShowTemplate {
-        token: &token,
-        id,
-        form_title: &MessageFormTitleTemplate {
-            token: &token,
-            id,
-            value: &message.title,
-            error: None,
-        },
-        form_content: &MessageFormContentTemplate {
-            token: &token,
-            id,
-            value: &message.content,
-            error: None,
-        },
-    })
-    .render()
+    match MessageShowTemplate::new(&token, id, &message.title, &message.content)
+        .render()
     {
         Ok(show) => (StatusCode::OK, csrf, Html(show)).into_response(),
         Err(error) => {
@@ -93,12 +78,7 @@ pub async fn index(
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
     };
-    match (MessageIndexTemplate {
-        token: &token,
-        messages: &messages,
-    })
-    .render()
-    {
+    match MessageIndexTemplate::new(&token, &messages).render() {
         Ok(index) => (StatusCode::OK, csrf, Html(index)).into_response(),
         Err(error) => {
             error!("{error}");
@@ -257,12 +237,7 @@ pub async fn events(
         move |event| match event {
             Ok((event, message)) => {
                 Ok(event.data(if let Some(message) = message {
-                    match (MessageEventTemplate {
-                        token: &token,
-                        message: &message,
-                    })
-                    .render()
-                    {
+                    match MessageEventTemplate::new(&token, &message).render() {
                         Ok(event) => event,
                         Err(error) => {
                             error!("{error}");
@@ -291,13 +266,9 @@ pub async fn validate_title(
     Extension(token): Extension<Arc<String>>,
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
-    match (MessageFormTitleTemplate {
-        token: &token,
-        id,
-        value: &message.title,
-        error: MessageModel::validate_title(&message.title),
-    })
-    .render()
+    match MessageFormTitleTemplate::new(&token, id, &message.title)
+        .validate(MessageModel::validate_title(&message.title))
+        .render()
     {
         Ok(form_title) => {
             (StatusCode::OK, csrf, Html(form_title)).into_response()
@@ -316,13 +287,9 @@ pub async fn validate_content(
     Extension(token): Extension<Arc<String>>,
     Form(message): Form<MessageModel>,
 ) -> impl IntoResponse {
-    match (MessageFormContentTemplate {
-        token: &token,
-        id,
-        value: &message.content,
-        error: MessageModel::validate_content(&message.content),
-    })
-    .render()
+    match MessageFormContentTemplate::new(&token, id, &message.content)
+        .validate(MessageModel::validate_content(&message.content))
+        .render()
     {
         Ok(form_content) => {
             (StatusCode::OK, csrf, Html(form_content)).into_response()
