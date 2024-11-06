@@ -6,6 +6,8 @@ pub struct AuthenticationTemplate<'a> {
     pub token: &'a str,
     pub location: &'a str,
     pub name: Option<&'a str>,
+    pub form_name: &'a AuthenticationFormNameTemplate<'a>,
+    pub form_password: &'a AuthenticationFormPasswordTemplate<'a>,
 }
 
 #[derive(Template)]

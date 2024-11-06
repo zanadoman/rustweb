@@ -33,6 +33,16 @@ pub async fn authentication(
         token: &token,
         location: "Authentication",
         name: None,
+        form_name: &AuthenticationFormNameTemplate {
+            token: &token,
+            value: "",
+            error: None,
+        },
+        form_password: &AuthenticationFormPasswordTemplate {
+            token: &token,
+            value: "",
+            error: None,
+        },
     })
     .render()
     {
