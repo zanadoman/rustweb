@@ -1,0 +1,10 @@
+<form
+    hx-post="/register"
+    hx-swap="none"
+    hx-headers='{"X-CSRF-Token": "{{ token }}"}'
+>
+    {{ form_name|safe }}
+    {{ form_password|safe }}
+    <button class="btn btn-primary w-100 mb-5" type="submit">Register</button>
+</form>
+

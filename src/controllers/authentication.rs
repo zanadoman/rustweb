@@ -18,7 +18,7 @@ use crate::{
     templates::{
         authentication::{
             AuthenticationFormNameTemplate, AuthenticationFormPasswordTemplate,
-            AuthenticationFormTemplate, AuthenticationTemplate,
+            AuthenticationLoginFormTemplate, AuthenticationTemplate,
         },
         toast::ToastTemplate,
     },
@@ -98,7 +98,7 @@ pub async fn login(
                 .into_response()
         }
     } else {
-        match AuthenticationFormTemplate::new(&token, true)
+        match AuthenticationLoginFormTemplate::new(&token, true)
             .validate(Some("Invalid credential."))
             .render()
         {

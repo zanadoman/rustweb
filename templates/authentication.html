@@ -22,7 +22,7 @@
                     <h2 class="mb-5 fw-bold text-center">LOGIN</h2>
                     <p class="mb-4 text-muted text-center"
                     >Please enter your name and password!</p>
-                    {{ form|safe }}
+                    {{ login_form|safe }}
                     <div class="d-flex justify-content-center">
                         <span class="me-2 my-auto">Don't have an account?</span>
                         <button
@@ -36,18 +36,7 @@
                     <h2 class="mb-5 fw-bold text-center">REGISTER</h2>
                     <p class="mb-4 text-muted text-center"
                     >Please enter a name and password!</p>
-                    <form
-                        hx-post="/register"
-                        hx-swap="none"
-                        hx-headers='{"X-CSRF-Token": "{{ token }}"}'
-                    >
-                        {{ form_name|safe }}
-                        {{ form_password|safe }}
-                        <button
-                            class="btn btn-primary w-100 mb-5"
-                            type="submit"
-                        >Register</button>
-                    </form>
+                    {{ register_form|safe }}
                     <div class="d-flex justify-content-center">
                         <span class="me-2 my-auto"
                         >Already have an account?</span>

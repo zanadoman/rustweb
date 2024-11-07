@@ -6,9 +6,8 @@ pub struct AuthenticationTemplate<'a> {
     token: &'a str,
     location: &'a str,
     name: Option<&'a str>,
-    form: AuthenticationFormTemplate<'a>,
-    form_name: AuthenticationFormNameTemplate<'a>,
-    form_password: AuthenticationFormPasswordTemplate<'a>,
+    login_form: AuthenticationLoginFormTemplate<'a>,
+    register_form: AuthenticationRegisterFormTemplate<'a>,
 }
 
 impl<'a> AuthenticationTemplate<'a> {
@@ -17,23 +16,22 @@ impl<'a> AuthenticationTemplate<'a> {
             token,
             location: "Authentication",
             name: None,
-            form: AuthenticationFormTemplate::new(token, false),
-            form_name: AuthenticationFormNameTemplate::new(token, true),
-            form_password: AuthenticationFormPasswordTemplate::new(token, true),
+            login_form: AuthenticationLoginFormTemplate::new(token, false),
+            register_form: AuthenticationRegisterFormTemplate::new(token),
         }
     }
 }
 
 #[derive(Template)]
-#[template(path = "./authentication/form.html")]
-pub struct AuthenticationFormTemplate<'a> {
+#[template(path = "./authentication/login_form.html")]
+pub struct AuthenticationLoginFormTemplate<'a> {
     token: &'a str,
     form_name: AuthenticationFormNameTemplate<'a>,
     form_password: AuthenticationFormPasswordTemplate<'a>,
     error: bool,
 }
 
-impl<'a> AuthenticationFormTemplate<'a> {
+impl<'a> AuthenticationLoginFormTemplate<'a> {
     pub fn new(token: &'a str, error: bool) -> Self {
         Self {
             token,
@@ -49,6 +47,24 @@ impl<'a> AuthenticationFormTemplate<'a> {
         self.form_name = self.form_name.validate("", error);
         self.form_password = self.form_password.validate("", error);
         self
+    }
+}
+
+#[derive(Template)]
+#[template(path = "./authentication/register_form.html")]
+struct AuthenticationRegisterFormTemplate<'a> {
+    token: &'a str,
+    form_name: AuthenticationFormNameTemplate<'a>,
+    form_password: AuthenticationFormPasswordTemplate<'a>,
+}
+
+impl<'a> AuthenticationRegisterFormTemplate<'a> {
+    fn new(token: &'a str) -> Self {
+        Self {
+            token,
+            form_name: AuthenticationFormNameTemplate::new(token, true),
+            form_password: AuthenticationFormPasswordTemplate::new(token, true),
+        }
     }
 }
 
