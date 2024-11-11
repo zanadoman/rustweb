@@ -21,7 +21,7 @@ Axum, featuring a minimalist frontend using only HTML, HTMX, and Bootstrap.**
 
 ## 🛠️ Dependencies
 
-To host the website, make sure you have the following depencencies installed:
+To host the website, make sure you have the following dependencies installed:
 
 - **Rustup**
 - **MariaDB**
