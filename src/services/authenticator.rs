@@ -1,4 +1,4 @@
-use axum::async_trait;
+use async_trait::async_trait;
 use axum_login::{
     tower_sessions::{Expiry, MemoryStore, SessionManagerLayer},
     AuthManagerLayer, AuthManagerLayerBuilder, AuthnBackend, UserId,
