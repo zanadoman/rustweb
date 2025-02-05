@@ -18,8 +18,8 @@ use crate::{
 pub fn routes() -> Router<Arc<StateService>> {
     Router::new()
         .route("/messages", get(index).post(create))
-        .route("/message/:id", get(show).put(update).delete(destroy))
+        .route("/message/{id}", get(show).put(update).delete(destroy))
         .route("/messages/events", get(events))
-        .route("/message/:id/validate/title", post(validate_title))
-        .route("/message/:id/validate/content", post(validate_content))
+        .route("/message/{id}/validate/title", post(validate_title))
+        .route("/message/{id}/validate/content", post(validate_content))
 }
